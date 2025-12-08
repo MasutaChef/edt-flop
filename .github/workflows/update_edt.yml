@@ -1,0 +1,28 @@
+name: Mise à jour EDT
+
+on:
+  schedule:
+    - cron: '0 6,12,18 * * *' # S'exécute à 6h, 12h et 18h
+  workflow_dispatch: # Permet de lancer manuellement le bouton
+
+jobs:
+  update-ics:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v3
+
+      - name: Télécharger l'EDT
+        run: |
+          # REMPLACE LE LIEN CI-DESSOUS PAR TON LIEN ICAL DE FLOPEDT
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/536.ics"
+
+      - name: Sauvegarder sur GitHub
+        run: |
+          git config --global user.name 'Mise à jour Auto'
+          git config --global user.email 'action@github.com'
+          git add edt.ics
+          # Ne commit que s'il y a du changement
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Mise à jour EDT" && git push)
