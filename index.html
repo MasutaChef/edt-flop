@@ -28,12 +28,10 @@
             padding: 0 15px; z-index: 1000; display: flex; align-items: center; justify-content: space-between;
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
-        
         .group-selector {
             background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px;
             font-weight: 700; color: var(--primary); font-size: 1rem; outline: none; cursor: pointer;
         }
-
         .btn-reload { 
             background: none; border: none; font-size: 1.2rem; color: var(--text-sub); 
             cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
@@ -68,11 +66,19 @@
         .course-meta { font-size: 0.9rem; color: var(--text-sub); display: flex; flex-wrap: wrap; gap: 8px; }
         
         .badge { background: #f0f2f5; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        
-        /* Badge Prof interactif */
-        .badge-prof { cursor: help; transition: background 0.2s; }
+        .badge-prof { cursor: pointer; transition: background 0.2s; position: relative; }
         .badge-prof:hover { background: #e4e6eb; color: var(--primary); }
-        .badge-prof:active { transform: scale(0.95); }
+
+        /* TOAST NOTIFICATION (La petite bulle) */
+        #prof-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: rgba(30, 30, 30, 0.9); backdrop-filter: blur(5px);
+            color: white; padding: 12px 24px; border-radius: 50px;
+            font-weight: 500; font-size: 0.95rem; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 3000;
+            text-align: center; white-space: nowrap; pointer-events: none;
+        }
+        #prof-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
 
         /* Styles dynamiques */
         .type-TP { border-left-color: var(--tp-border); background: linear-gradient(to right, #f5faff, white 50%); }
@@ -92,9 +98,9 @@
 </head>
 <body>
 
-    <div id="loading">
-        <div class="spinner"></div>
-    </div>
+    <div id="loading"><div class="spinner"></div></div>
+
+    <div id="prof-toast"></div>
 
     <header>
         <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
@@ -117,7 +123,7 @@
     <div id="schedule-container"></div>
 
     <script>
-        // --- DONNÉES PROFS ---
+        // --- DICTIONNAIRE PROFS ---
         const PROFESSORS = {
             "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL"
         };
@@ -125,6 +131,7 @@
         let eventsData = [];
         let currentDate = new Date();
         let currentGroup = localStorage.getItem('user_group') || '1C';
+        let toastTimeout;
 
         window.onload = () => {
             document.getElementById('group-select').value = currentGroup;
@@ -194,9 +201,21 @@
             renderSchedule();
         }
 
+        // --- GESTION TOAST ---
         function showProfName(code) {
             const name = PROFESSORS[code] || code;
-            alert(name);
+            const toast = document.getElementById('prof-toast');
+            
+            // Si on clique, on reset le timer précédent
+            if(toastTimeout) clearTimeout(toastTimeout);
+            
+            toast.innerHTML = `<i class="fa-solid fa-user-tie"></i> &nbsp; ${name}`;
+            toast.classList.add('visible');
+            
+            // Disparait après 2.5 secondes
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove('visible');
+            }, 2500);
         }
 
         function renderSchedule() {
@@ -217,7 +236,7 @@
                 const hStart = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
                 const hEnd = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
                 
-                // Recherche du nom complet
+                // Recherche du nom complet pour le titre (PC)
                 const profFullName = PROFESSORS[e.prof] || e.prof;
                 
                 container.innerHTML += `
