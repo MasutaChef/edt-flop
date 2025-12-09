@@ -29,7 +29,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
         
-        /* Selecteur de groupe stylisé */
         .group-selector {
             background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px;
             font-weight: 700; color: var(--primary); font-size: 1rem; outline: none; cursor: pointer;
@@ -67,7 +66,13 @@
         .info-col { display: flex; flex-direction: column; justify-content: center; }
         .course-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; line-height: 1.25; }
         .course-meta { font-size: 0.9rem; color: var(--text-sub); display: flex; flex-wrap: wrap; gap: 8px; }
+        
         .badge { background: #f0f2f5; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
+        
+        /* Badge Prof interactif */
+        .badge-prof { cursor: help; transition: background 0.2s; }
+        .badge-prof:hover { background: #e4e6eb; color: var(--primary); }
+        .badge-prof:active { transform: scale(0.95); }
 
         /* Styles dynamiques */
         .type-TP { border-left-color: var(--tp-border); background: linear-gradient(to right, #f5faff, white 50%); }
@@ -100,7 +105,6 @@
             <option value="1E">Groupe 1E</option>
             <option value="1F">Groupe 1F</option>
         </select>
-        
         <button class="btn-reload" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i></button>
     </header>
 
@@ -113,41 +117,38 @@
     <div id="schedule-container"></div>
 
     <script>
+        // --- DONNÉES PROFS ---
+        const PROFESSORS = {
+            "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL"
+        };
+
         let eventsData = [];
         let currentDate = new Date();
-        let currentGroup = localStorage.getItem('user_group') || '1C'; // 1C par défaut ou dernier choix
+        let currentGroup = localStorage.getItem('user_group') || '1C';
 
         window.onload = () => {
-            // Définir la valeur du selecteur au chargement
             document.getElementById('group-select').value = currentGroup;
             loadSchedule(currentGroup);
         };
 
         function changeGroup(newGroup) {
             currentGroup = newGroup;
-            localStorage.setItem('user_group', newGroup); // Sauvegarde le choix
+            localStorage.setItem('user_group', newGroup);
             loadSchedule(newGroup);
         }
 
         async function loadSchedule(group) {
             document.getElementById('loading').classList.remove('hidden');
-            
-            // On charge le fichier correspondant au groupe (ex: edt_1A.ics)
             const icsUrl = `./edt_${group}.ics?t=` + new Date().getTime();
-            
             try {
                 const response = await fetch(icsUrl);
-                if (!response.ok) throw new Error("Fichier introuvable (attendre le robot)");
+                if (!response.ok) throw new Error("Pas de fichier");
                 const text = await response.text();
                 processICS(text);
             } catch (e) {
                 console.error(e);
                 document.getElementById('schedule-container').innerHTML = 
-                    `<div class="empty-state">
-                        <i class="fa-solid fa-cloud-arrow-down" style="font-size: 2rem; color: #aaa;"></i><br><br>
-                        Le planning du groupe ${group} n'est pas encore téléchargé.<br>
-                        Lance le robot GitHub manuellement ou attends un peu !
-                    </div>`;
+                    `<div class="empty-state">Planning ${group} indisponible (attendre synchro)</div>`;
             } finally {
                 document.getElementById('loading').classList.add('hidden');
             }
@@ -193,10 +194,14 @@
             renderSchedule();
         }
 
+        function showProfName(code) {
+            const name = PROFESSORS[code] || code;
+            alert(name);
+        }
+
         function renderSchedule() {
             const container = document.getElementById('schedule-container');
-            const dateLabel = document.getElementById('date-display');
-            dateLabel.innerText = currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+            document.getElementById('date-display').innerText = currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             container.innerHTML = "";
 
             const startOfDay = new Date(currentDate); startOfDay.setHours(0,0,0,0);
@@ -204,14 +209,17 @@
             const dayEvents = eventsData.filter(e => e.start >= startOfDay && e.start <= endOfDay);
 
             if (dayEvents.length === 0) {
-                const isWE = (currentDate.getDay() === 0 || currentDate.getDay() === 6);
-                container.innerHTML = `<div class="empty-state">${isWE ? "Bon week-end ! 🌴" : "Rien de prévu 💤"}</div>`;
+                container.innerHTML = `<div class="empty-state">Rien de prévu 💤</div>`;
                 return;
             }
 
             dayEvents.forEach(e => {
                 const hStart = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
                 const hEnd = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+                
+                // Recherche du nom complet
+                const profFullName = PROFESSORS[e.prof] || e.prof;
+                
                 container.innerHTML += `
                 <div class="course-card type-${e.type}">
                     <div class="time-col"><span class="time-start">${hStart}</span><span class="time-end">${hEnd}</span></div>
@@ -219,7 +227,9 @@
                         <div class="course-title">${e.title}</div>
                         <div class="course-meta">
                             <span class="badge"><i class="fa-solid fa-location-dot"></i> ${e.location}</span>
-                            <span class="badge"><i class="fa-solid fa-user"></i> ${e.prof}</span>
+                            <span class="badge badge-prof" title="${profFullName}" onclick="showProfName('${e.prof}')">
+                                <i class="fa-solid fa-user"></i> ${e.prof}
+                            </span>
                         </div>
                     </div>
                 </div>`;
