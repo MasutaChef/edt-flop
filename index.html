@@ -69,16 +69,33 @@
         .badge-prof { cursor: pointer; transition: background 0.2s; position: relative; }
         .badge-prof:hover { background: #e4e6eb; color: var(--primary); }
 
-        /* TOAST NOTIFICATION (La petite bulle) */
-        #prof-toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: rgba(30, 30, 30, 0.9); backdrop-filter: blur(5px);
-            color: white; padding: 12px 24px; border-radius: 50px;
-            font-weight: 500; font-size: 0.95rem; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-            opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 3000;
-            text-align: center; white-space: nowrap; pointer-events: none;
+        /* --- MODAL (POPUP) --- */
+        #modal-overlay {
+            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
+            z-index: 4000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
         }
-        #prof-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+        .modal-box {
+            background: white; width: 90%; max-width: 350px; padding: 25px;
+            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            text-align: center; transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+        #modal-overlay.active .modal-box { transform: scale(1); }
+
+        .modal-icon { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
+        .modal-title { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .modal-name { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px; }
+        
+        .close-icon {
+            position: absolute; top: 15px; right: 15px;
+            width: 30px; height: 30px; background: #f0f2f5; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #666; transition: 0.2s;
+        }
+        .close-icon:hover { background: #e4e6eb; color: #333; }
 
         /* Styles dynamiques */
         .type-TP { border-left-color: var(--tp-border); background: linear-gradient(to right, #f5faff, white 50%); }
@@ -100,7 +117,14 @@
 
     <div id="loading"><div class="spinner"></div></div>
 
-    <div id="prof-toast"></div>
+    <div id="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-box">
+            <div class="close-icon" onclick="closeModal(event)"><i class="fa-solid fa-xmark"></i></div>
+            <div class="modal-icon"><i class="fa-solid fa-user-tie"></i></div>
+            <div class="modal-title">Enseignant</div>
+            <div class="modal-name" id="modal-prof-name">...</div>
+        </div>
+    </div>
 
     <header>
         <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
@@ -131,7 +155,6 @@
         let eventsData = [];
         let currentDate = new Date();
         let currentGroup = localStorage.getItem('user_group') || '1C';
-        let toastTimeout;
 
         window.onload = () => {
             document.getElementById('group-select').value = currentGroup;
@@ -201,21 +224,18 @@
             renderSchedule();
         }
 
-        // --- GESTION TOAST ---
+        // --- GESTION MODAL ---
         function showProfName(code) {
             const name = PROFESSORS[code] || code;
-            const toast = document.getElementById('prof-toast');
-            
-            // Si on clique, on reset le timer précédent
-            if(toastTimeout) clearTimeout(toastTimeout);
-            
-            toast.innerHTML = `<i class="fa-solid fa-user-tie"></i> &nbsp; ${name}`;
-            toast.classList.add('visible');
-            
-            // Disparait après 2.5 secondes
-            toastTimeout = setTimeout(() => {
-                toast.classList.remove('visible');
-            }, 2500);
+            document.getElementById('modal-prof-name').innerText = name;
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+
+        function closeModal(e) {
+            // Ferme si on clique sur la croix ou l'overlay (pas la boite elle-même)
+            if(e.target.id === 'modal-overlay' || e.currentTarget.classList.contains('close-icon')) {
+                document.getElementById('modal-overlay').classList.remove('active');
+            }
         }
 
         function renderSchedule() {
@@ -246,7 +266,7 @@
                         <div class="course-title">${e.title}</div>
                         <div class="course-meta">
                             <span class="badge"><i class="fa-solid fa-location-dot"></i> ${e.location}</span>
-                            <span class="badge badge-prof" title="${profFullName}" onclick="showProfName('${e.prof}')">
+                            <span class="badge badge-prof" onclick="showProfName('${e.prof}')">
                                 <i class="fa-solid fa-user"></i> ${e.prof}
                             </span>
                         </div>
