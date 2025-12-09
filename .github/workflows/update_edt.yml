@@ -1,9 +1,9 @@
-name: Mise à jour EDT
+name: Mise à jour EDT Complète
 
 on:
   schedule:
-    - cron: '0 6,12,18 * * *' # S'exécute à 6h, 12h et 18h
-  workflow_dispatch: # Permet de lancer manuellement le bouton
+    - cron: '0 6,12,18 * * *' # 3 fois par jour
+  workflow_dispatch:
 
 jobs:
   update-ics:
@@ -14,15 +14,24 @@ jobs:
       - name: Récupération du code
         uses: actions/checkout@v3
 
-      - name: Télécharger l'EDT
+      - name: Télécharger TOUS les groupes
         run: |
-          # REMPLACE LE LIEN CI-DESSOUS PAR TON LIEN ICAL DE FLOPEDT
-          curl -L -H "User-Agent: Mozilla/5.0" -o edt.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/536.ics"
+          # Groupe 1A
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt_1A.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/534.ics"
+          # Groupe 1B
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt_1B.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/535.ics"
+          # Groupe 1C
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt_1C.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/536.ics"
+          # Groupe 1D
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt_1D.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/537.ics"
+          # Groupe 1E
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt_1E.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/538.ics"
+          # Groupe 1F
+          curl -L -H "User-Agent: Mozilla/5.0" -o edt_1F.ics "https://flopedt.iut-blagnac.fr/en/ics/RT/structural_group/539.ics"
 
       - name: Sauvegarder sur GitHub
         run: |
-          git config --global user.name 'Mise à jour Auto'
+          git config --global user.name 'Robot EDT'
           git config --global user.email 'action@github.com'
-          git add edt.ics
-          # Ne commit que s'il y a du changement
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Mise à jour EDT" && git push)
+          git add *.ics
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Mise à jour des groupes" && git push)
