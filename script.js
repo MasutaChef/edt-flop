@@ -7,19 +7,13 @@ let currGroup = localStorage.getItem('user_group') || '1C';
 let isDark = localStorage.getItem('theme') === 'dark';
 
 window.onload = () => {
-    // Init Thème
     if(isDark) document.documentElement.setAttribute('data-theme', 'dark');
     updateThemeIcon();
-
-    // Init Données
     document.getElementById('group-select').value = currGroup;
     loadData(currGroup);
-
-    // Rafraichir l'indicateur LIVE chaque minute
     setInterval(render, 60000);
 };
 
-// --- GESTION THEME ---
 function toggleTheme() {
     isDark = !isDark;
     if(isDark) document.documentElement.setAttribute('data-theme', 'dark');
@@ -28,8 +22,7 @@ function toggleTheme() {
     updateThemeIcon();
 }
 function updateThemeIcon() {
-    const btn = document.getElementById('theme-btn');
-    btn.innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
+    document.getElementById('theme-btn').innerHTML = isDark ? '<i class="fa-solid fa-sun"></i>' : '<i class="fa-solid fa-moon"></i>';
 }
 
 function changeGroup(g) {
@@ -59,18 +52,13 @@ function parseData(ics) {
     events = comp.getAllSubcomponents("vevent").map(e => {
         const evt = new ICAL.Event(e);
         let title = evt.summary; let prof = ""; let type = "Autre";
-
         if (title.includes("-")) {
             const parts = title.split("-");
             prof = parts[parts.length-1].trim();
             title = parts.slice(0, -1).join("-").trim();
         }
         const up = title.toUpperCase();
-        if (up.includes("TP")) type = "tp";
-        else if (up.includes("TD")) type = "td";
-        else if (up.includes("CM") || up.includes("AMPHI")) type = "cm";
-        else if (up.includes("EXAM")) type = "exam";
-
+        if (up.includes("TP")) type = "tp"; else if (up.includes("TD")) type = "td"; else if (up.includes("CM") || up.includes("AMPHI")) type = "cm"; else if (up.includes("EXAM")) type = "exam";
         return { title, prof, type, loc: evt.location || "?", start: evt.startDate.toJSDate(), end: evt.endDate.toJSDate() };
     });
     events.sort((a,b) => a.start - b.start);
@@ -85,13 +73,11 @@ function setView(v) {
     document.getElementById('week-container').style.display = v === 'week' ? 'flex' : 'none';
     render();
 }
-
 function navDate(dir) {
     const days = currView === 'day' ? 1 : 7;
     currDate.setDate(currDate.getDate() + (dir * days));
     render();
 }
-
 function getMonday(d) {
     d = new Date(d);
     const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1);
@@ -109,25 +95,20 @@ function render() {
     if (currView === 'day') {
         dateLabel.setAttribute('datetime', currDate.toISOString().split('T')[0]);
         dateLabel.innerText = currDate.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
-        
         const start = new Date(currDate); start.setHours(0,0,0,0);
         const end = new Date(currDate); end.setHours(23,59,59,999);
         const dayEvts = events.filter(e => e.start >= start && e.start <= end);
-
         dayCont.innerHTML = dayEvts.length ? dayEvts.map(e => makeCard(e, now)).join('') : "<p class='empty'>Rien ce jour 💤</p>";
-
     } else {
         const mon = getMonday(currDate);
         dateLabel.innerText = `Semaine du ${mon.getDate()} ${mon.toLocaleDateString('fr-FR',{month:'short'})}`;
         weekCont.innerHTML = "";
-
         const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
         for(let i=0; i<5; i++) {
             const d = new Date(mon); d.setDate(mon.getDate()+i);
             const s = new Date(d); s.setHours(0,0,0,0);
             const e = new Date(d); e.setHours(23,59,59,999);
             const evts = events.filter(ev => ev.start >= s && ev.start <= e);
-
             let html = `<section class="week-column"><header class="col-header">${days[i]} ${d.getDate()}</header><div class="col-content">`;
             html += evts.length ? evts.map(ev => makeCard(ev, now)).join('') : "<p class='empty' style='padding:10px'>Libre</p>";
             html += `</div></section>`;
@@ -139,8 +120,6 @@ function render() {
 function makeCard(e, now) {
     const h1 = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
     const h2 = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-    
-    // Logique LIVE (En cours)
     const isLive = (e.start <= now && e.end >= now);
     const liveClass = isLive ? 'is-live' : '';
     const liveBadge = isLive ? '<mark class="live-badge">EN COURS</mark>' : '';
@@ -151,30 +130,28 @@ function makeCard(e, now) {
         <header class="time-row">
             <time datetime="${e.start.toISOString()}">${h1}</time> - <time datetime="${e.end.toISOString()}">${h2}</time>
         </header>
-        
         <h3 class="card-title" onclick="showProf('${e.prof}')">${e.title}</h3>
-        
         <footer class="card-footer">
-            <button class="pill" onclick="showProf('${e.prof}')" aria-label="Voir le professeur">
-                <i class="fa-solid fa-user"></i> ${e.prof}
-            </button>
-            <button class="pill pill-loc" onclick="showLoc('${e.loc}')" aria-label="Voir la salle">
-                <address style="font-style:normal; display:inline"><i class="fa-solid fa-location-dot"></i> ${e.loc}</address>
-            </button>
+            <button class="pill" onclick="showProf('${e.prof}')" aria-label="Voir le professeur"><i class="fa-solid fa-user"></i> ${e.prof}</button>
+            <button class="pill pill-loc" onclick="showLoc('${e.loc}')" aria-label="Voir la salle"><address style="font-style:normal; display:inline"><i class="fa-solid fa-location-dot"></i> ${e.loc}</address></button>
         </footer>
     </article>`;
 }
 
-// --- POPUPS ---
+// --- LOGIQUE MODALE ---
 const modal = document.getElementById('modal');
 const modalCard = document.querySelector('.modal-card');
 
 function showProf(code) {
     const name = PROFS[code] || code;
     
-    // Remet la taille normale (au cas où elle était large avant)
+    // 1. Reset taille normale
     modalCard.classList.remove('large');
-
+    
+    // 2. Réafficher les éléments masqués par le plan
+    document.getElementById('modal-icon').style.display = 'block';
+    document.getElementById('modal-subtitle').style.display = 'block';
+    
     document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-user-tie"></i>';
     document.getElementById('modal-subtitle').innerText = "Enseignant";
     document.getElementById('modal-title').innerText = name;
@@ -183,25 +160,21 @@ function showProf(code) {
 }
 
 function showLoc(loc) {
-    // Agrandit la fenêtre pour le plan
+    // 1. Mode Large (CSS gère la taille et le centrage)
     modalCard.classList.add('large');
 
-    document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-map-location-dot"></i>';
-    document.getElementById('modal-subtitle').innerText = "Localisation";
+    // 2. On cache l'entête classique pour gagner de la place
+    document.getElementById('modal-icon').style.display = 'none';
+    document.getElementById('modal-subtitle').style.display = 'none';
     document.getElementById('modal-title').innerText = "Salle " + loc;
     
-    const content = document.getElementById('modal-content');
-    
-    content.innerHTML = `
-        <figure style="margin:0; width:100%; display:flex; flex-direction:column; align-items:center;">
-            <img src="img/plan.jpg" 
-                 alt="Plan de l'IUT indiquant la salle ${loc}" 
-                 style="width:100%; height:auto; border-radius:8px; border:1px solid var(--border); display:block;">
-            
-            <figcaption style="margin-top:10px; color:var(--text-sub); font-size:0.85rem;">
-                Bâtiment RT <br>
-                <a href="https://www.google.com/maps/search/?api=1&query=IUT+Blagnac" target="_blank" style="color:var(--primary); text-decoration:underline; font-weight:bold;">
-                    <i class="fa-solid fa-location-arrow"></i> Ouvrir GPS
+    // 3. Injecter l'image
+    document.getElementById('modal-content').innerHTML = `
+        <figure style="margin:0; width:100%; height:100%; display:flex; flex-direction:column;">
+            <img src="img/plan.jpg" alt="Plan de l'IUT" style="flex:1; width:100%; object-fit:contain;">
+            <figcaption style="margin-top:10px;">
+                <a href="https://www.google.com/maps/search/?api=1&query=IUT+Blagnac" target="_blank" class="modal-btn" style="margin-top:0">
+                    <i class="fa-solid fa-location-arrow"></i> GPS
                 </a>
             </figcaption>
         </figure>`;
@@ -212,7 +185,6 @@ function showLoc(loc) {
 function closeModal(e) {
     if(e.target.id === 'modal' || e.currentTarget.classList.contains('modal-close')) {
         modal.classList.remove('open');
-        // Petit délai pour reset la taille pour la prochaine ouverture
         setTimeout(() => modalCard.classList.remove('large'), 200);
     }
 }
