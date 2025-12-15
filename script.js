@@ -192,7 +192,6 @@ function showLoc(loc) {
     
     const content = document.getElementById('modal-content');
     
-    // IMPORTANT: Assure-toi que ton image est bien dans le dossier img/ et s'appelle plan.jpg
     content.innerHTML = `
         <figure style="margin:0; width:100%; display:flex; flex-direction:column; align-items:center;">
             <img src="img/plan.jpg" 
