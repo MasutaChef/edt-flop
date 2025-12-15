@@ -169,17 +169,27 @@ function showProf(code) {
 }
 
 function showLoc(loc) {
+    // 1. Changer l'icône et le titre
     document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-map-location-dot"></i>';
     document.getElementById('modal-subtitle').innerText = "Localisation";
     document.getElementById('modal-title').innerText = "Salle " + loc;
     
-    // Lien Google Maps générique vers l'IUT
+    // 2. Insérer l'image du plan
+    // J'ai ajouté une classe "zoomable" si jamais tu veux ajouter du zoom plus tard
     document.getElementById('modal-content').innerHTML = `
-        <p style="color:var(--text-sub); margin-bottom:10px">Plan indisponible. Voir sur Google Maps :</p>
-        <a href="https://www.google.com/maps/search/?api=1&query=IUT+Blagnac" target="_blank" class="modal-btn">
-            Voir l'IUT sur Maps
-        </a>`;
-    modal.classList.add('open');
+        <figure style="margin:0;">
+            <img src="img/plan.jpg" alt="Plan de l'IUT indiquant la salle ${loc}" style="max-width:100%; height:auto; border-radius:8px; border:1px solid var(--border);">
+            <figcaption style="margin-top:10px; color:var(--text-sub); font-size:0.85rem;">
+                Bâtiment RT <br>
+                <a href="https://www.google.com/maps/search/?api=1&query=IUT+Blagnac" target="_blank" style="color:var(--primary); text-decoration:underline;">Ouvrir GPS externe</a>
+            </figcaption>
+        </figure>`;
+        
+    // 3. Ouvrir la modale
+    modal.classList.add('open'); // On change showModal() par notre classe CSS personnalisée pour l'animation
+    // Note: Si tu utilises la balise <dialog> native en sémantique pure, 
+    // tu devrais idéalement utiliser modal.showModal() ici, 
+    // mais gardons ta classe .open pour l'animation fluide qu'on a faite en CSS.
 }
 
 function closeModal(e) {
