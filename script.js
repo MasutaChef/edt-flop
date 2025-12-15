@@ -47,7 +47,7 @@ async function loadData(group) {
         const text = await res.text();
         parseData(text);
     } catch(e) {
-        document.getElementById('day-container').innerHTML = "<div class='empty'>Erreur chargement. Vérifie que le robot GitHub a tourné !</div>";
+        document.getElementById('day-container').innerHTML = "<p class='empty'>Erreur chargement. Vérifie que le robot GitHub a tourné !</p>";
     } finally {
         document.getElementById('loading').style.display = 'none';
     }
@@ -107,13 +107,14 @@ function render() {
     const now = new Date();
 
     if (currView === 'day') {
+        dateLabel.setAttribute('datetime', currDate.toISOString().split('T')[0]);
         dateLabel.innerText = currDate.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
         
         const start = new Date(currDate); start.setHours(0,0,0,0);
         const end = new Date(currDate); end.setHours(23,59,59,999);
         const dayEvts = events.filter(e => e.start >= start && e.start <= end);
 
-        dayCont.innerHTML = dayEvts.length ? dayEvts.map(e => makeCard(e, now)).join('') : "<div class='empty'>Rien ce jour 💤</div>";
+        dayCont.innerHTML = dayEvts.length ? dayEvts.map(e => makeCard(e, now)).join('') : "<p class='empty'>Rien ce jour 💤</p>";
 
     } else {
         const mon = getMonday(currDate);
@@ -127,9 +128,9 @@ function render() {
             const e = new Date(d); e.setHours(23,59,59,999);
             const evts = events.filter(ev => ev.start >= s && ev.start <= e);
 
-            let html = `<div class="week-column"><div class="col-header">${days[i]} ${d.getDate()}</div><div class="col-content">`;
-            html += evts.length ? evts.map(ev => makeCard(ev, now)).join('') : "<div class='empty' style='padding:10px'>Libre</div>";
-            html += `</div></div>`;
+            let html = `<section class="week-column"><header class="col-header">${days[i]} ${d.getDate()}</header><div class="col-content">`;
+            html += evts.length ? evts.map(ev => makeCard(ev, now)).join('') : "<p class='empty' style='padding:10px'>Libre</p>";
+            html += `</div></section>`;
             weekCont.innerHTML += html;
         }
     }
@@ -142,63 +143,77 @@ function makeCard(e, now) {
     // Logique LIVE (En cours)
     const isLive = (e.start <= now && e.end >= now);
     const liveClass = isLive ? 'is-live' : '';
-    const liveBadge = isLive ? '<div class="live-badge">EN COURS</div>' : '';
+    const liveBadge = isLive ? '<mark class="live-badge">EN COURS</mark>' : '';
 
     return `
-    <div class="card ${e.type} ${liveClass}">
+    <article class="card ${e.type} ${liveClass}">
         ${liveBadge}
-        <div class="time-row"><span>${h1} - ${h2}</span></div>
-        <div class="card-title" onclick="showProf('${e.prof}')">${e.title}</div>
-        <div class="card-footer">
-            <span class="pill" onclick="showProf('${e.prof}')"><i class="fa-solid fa-user"></i> ${e.prof}</span>
-            <span class="pill pill-loc" onclick="showLoc('${e.loc}')"><i class="fa-solid fa-location-dot"></i> ${e.loc}</span>
-        </div>
-    </div>`;
+        <header class="time-row">
+            <time datetime="${e.start.toISOString()}">${h1}</time> - <time datetime="${e.end.toISOString()}">${h2}</time>
+        </header>
+        
+        <h3 class="card-title" onclick="showProf('${e.prof}')">${e.title}</h3>
+        
+        <footer class="card-footer">
+            <button class="pill" onclick="showProf('${e.prof}')" aria-label="Voir le professeur">
+                <i class="fa-solid fa-user"></i> ${e.prof}
+            </button>
+            <button class="pill pill-loc" onclick="showLoc('${e.loc}')" aria-label="Voir la salle">
+                <address style="font-style:normal; display:inline"><i class="fa-solid fa-location-dot"></i> ${e.loc}</address>
+            </button>
+        </footer>
+    </article>`;
 }
 
 // --- POPUPS ---
 const modal = document.getElementById('modal');
+const modalCard = document.querySelector('.modal-card');
 
 function showProf(code) {
     const name = PROFS[code] || code;
+    
+    // Remet la taille normale (au cas où elle était large avant)
+    modalCard.classList.remove('large');
+
     document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-user-tie"></i>';
     document.getElementById('modal-subtitle').innerText = "Enseignant";
     document.getElementById('modal-title').innerText = name;
-    document.getElementById('modal-content').innerHTML = ""; // Pas de contenu extra pour prof
+    document.getElementById('modal-content').innerHTML = ""; 
     modal.classList.add('open');
 }
 
 function showLoc(loc) {
-    // 1. Changer l'icône et le titre
-    const iconContainer = document.getElementById('modal-icon');
-    iconContainer.innerHTML = '<i class="fa-solid fa-map-location-dot"></i>';
-    
+    // Agrandit la fenêtre pour le plan
+    modalCard.classList.add('large');
+
+    document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-map-location-dot"></i>';
     document.getElementById('modal-subtitle').innerText = "Localisation";
     document.getElementById('modal-title').innerText = "Salle " + loc;
     
-    // 2. Insérer l'image du plan 
     const content = document.getElementById('modal-content');
     
+    // IMPORTANT: Assure-toi que ton image est bien dans le dossier img/ et s'appelle plan.jpg
     content.innerHTML = `
-        <figure style="margin:0; width:100%;">
+        <figure style="margin:0; width:100%; display:flex; flex-direction:column; align-items:center;">
             <img src="img/plan.jpg" 
                  alt="Plan de l'IUT indiquant la salle ${loc}" 
-                 style="max-width:100%; height:auto; border-radius:8px; border:1px solid var(--border); display:block;">
+                 style="width:100%; height:auto; border-radius:8px; border:1px solid var(--border); display:block;">
             
             <figcaption style="margin-top:10px; color:var(--text-sub); font-size:0.85rem;">
                 Bâtiment RT <br>
-                <a href="https://www.google.com/maps/search/?api=1&query=IUT+Blagnac" target="_blank" style="color:var(--primary); text-decoration:underline;">
-                    Ouvrir GPS externe
+                <a href="https://www.google.com/maps/search/?api=1&query=IUT+Blagnac" target="_blank" style="color:var(--primary); text-decoration:underline; font-weight:bold;">
+                    <i class="fa-solid fa-location-arrow"></i> Ouvrir GPS
                 </a>
             </figcaption>
         </figure>`;
         
-    // 3. Ouvrir la modale (via la classe CSS pour l'animation)
-    document.getElementById('modal').classList.add('open');
+    modal.classList.add('open');
 }
 
 function closeModal(e) {
     if(e.target.id === 'modal' || e.currentTarget.classList.contains('modal-close')) {
         modal.classList.remove('open');
+        // Petit délai pour reset la taille pour la prochaine ouverture
+        setTimeout(() => modalCard.classList.remove('large'), 200);
     }
 }
