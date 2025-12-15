@@ -14,14 +14,14 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-<link rel="stylesheet" href="style.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
 </head>
 <body>
 
-    <section id="loading" aria-busy="true" aria-label="Chargement">
-        <span class="spinner"></span>
-    </section>
+    <div id="loading" aria-busy="true" aria-label="Chargement">
+        <div class="spinner"></div>
+    </div>
 
     <dialog id="modal" onclick="closeModal(event)">
         <article class="modal-card">
@@ -42,39 +42,32 @@
 
     <header>
         <nav class="header-row">
-            <form>
-                <label for="group-select" class="sr-only">Choisir le groupe</label>
-                <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
-                    <option value="1A">Groupe 1A</option><option value="1B">Groupe 1B</option>
-                    <option value="1C">Groupe 1C</option><option value="1D">Groupe 1D</option>
-                    <option value="1E">Groupe 1E</option><option value="1F">Groupe 1F</option>
-                </select>
-            </form>
+            <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
+                <option value="1A">Groupe 1A</option><option value="1B">Groupe 1B</option>
+                <option value="1C">Groupe 1C</option><option value="1D">Groupe 1D</option>
+                <option value="1E">Groupe 1E</option><option value="1F">Groupe 1F</option>
+            </select>
 
-            <menu class="header-actions" style="list-style:none; display:flex; gap:10px; padding:0;">
-                <li>
-                    <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" aria-label="Changer le thème">
-                        <i class="fa-solid fa-moon"></i>
-                    </button>
-                </li>
-                <li>
-                    <a href="https://scodoc.iut-blagnac.fr/" target="_blank" class="btn-notes">
-                        <i class="fa-solid fa-graduation-cap"></i> Notes
-                    </a>
-                </li>
-            </menu>
+            <div class="header-actions">
+                <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" aria-label="Changer thème">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <a href="https://scodoc.iut-blagnac.fr/" target="_blank" class="btn-notes">
+                    <i class="fa-solid fa-graduation-cap"></i> Notes
+                </a>
+            </div>
         </nav>
 
-        <menu class="view-switch">
+        <nav class="view-switch">
             <button class="switch-opt active" id="btn-day" onclick="setView('day')">Jour</button>
             <button class="switch-opt" id="btn-week" onclick="setView('week')">Semaine</button>
-        </menu>
+        </nav>
     </header>
 
     <nav class="date-nav">
-        <button class="nav-btn" onclick="navDate(-1)" aria-label="Précédent"><i class="fa-solid fa-chevron-left"></i></button>
-        <time class="date-title" id="date-label" datetime="">--</time>
-        <button class="nav-btn" onclick="navDate(1)" aria-label="Suivant"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="nav-btn" onclick="navDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <time class="date-title" id="date-label">--</time>
+        <button class="nav-btn" onclick="navDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
     </nav>
 
     <main id="main-view">
@@ -85,4 +78,3 @@
     <script src="script.js"></script>
 </body>
 </html>
-
