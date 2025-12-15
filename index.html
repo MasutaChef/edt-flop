@@ -19,116 +19,82 @@
             --exam-bg: #fff3e0; --exam-border: #ff9800; --exam-text: #e65100;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text-main); padding-bottom: 80px; font-size: 16px; }
+        body { background-color: var(--bg); color: var(--text-main); padding-bottom: 80px; font-size: 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* HEADER FIXE */
+        /* HEADER */
         header {
-            position: fixed; top: 0; left: 0; right: 0; height: auto;
             background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid var(--border);
-            padding: 10px 15px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            padding: 10px 15px; z-index: 1000; flex-shrink: 0;
         }
-        
-        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .group-selector { background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+        .view-toggle { display: flex; background: #f0f2f5; border-radius: 8px; padding: 3px; max-width: 300px; margin: 0 auto; }
+        .toggle-option { flex: 1; text-align: center; padding: 6px; font-weight: 600; font-size: 0.85rem; border-radius: 6px; cursor: pointer; color: var(--text-sub); }
+        .toggle-option.active { background: white; color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
-        .group-selector {
-            background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px;
-            font-weight: 700; color: var(--primary); font-size: 1rem; outline: none; cursor: pointer;
-        }
-        .btn-reload { 
-            background: none; border: none; font-size: 1.2rem; color: var(--text-sub); 
-            cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
-        }
-
-        /* TOGGLE VIEW (JOUR / SEMAINE) */
-        .view-toggle {
-            display: flex; background: #f0f2f5; border-radius: 10px; padding: 4px;
-            width: 100%; max-width: 400px; margin: 0 auto;
-        }
-        .toggle-option {
-            flex: 1; text-align: center; padding: 8px; font-weight: 600; font-size: 0.9rem;
-            border-radius: 8px; cursor: pointer; color: var(--text-sub); transition: 0.2s;
-        }
-        .toggle-option.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-
-        /* CONTROLS DATE */
+        /* DATE NAV */
         .date-controls {
-            padding-top: 130px; /* Espace pour le header plus grand */
-            padding-bottom: 20px; max-width: 800px; margin: 0 auto;
-            display: flex; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px;
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;
+            background: var(--bg); flex-shrink: 0;
         }
-        .current-date { font-weight: 800; font-size: 1.2rem; text-transform: capitalize; text-align: center; }
-        .nav-btn {
-            background: var(--surface); border: 1px solid var(--border); width: 48px; height: 48px; border-radius: 50%;
-            font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
+        .current-date { font-weight: 800; font-size: 1.1rem; text-transform: capitalize; }
+        .nav-btn { background: var(--surface); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
 
-        /* LISTE DES COURS */
-        #schedule-container { padding: 0 20px; max-width: 800px; margin: 0 auto; }
+        /* SCROLL AREA */
+        #main-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 10px; }
         
-        .day-header {
-            font-size: 0.9rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px;
-            margin: 25px 0 10px 5px; position: sticky; top: 120px; z-index: 90;
-            background: var(--bg); padding: 5px 0; display: flex; align-items: center; gap: 10px;
+        /* MODE SEMAINE (HORIZONTAL) */
+        .week-container {
+            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 20px;
+            scroll-snap-type: x mandatory; height: 100%; align-items: flex-start;
         }
-        .day-header::after { content: ""; flex: 1; height: 1px; background: #e4e6eb; }
+        .day-column {
+            min-width: 85vw; /* Sur mobile : 85% de l'écran */
+            background: #fff; border-radius: 16px; padding: 10px;
+            scroll-snap-align: center; border: 1px solid var(--border);
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .day-col-header { font-weight: 800; text-align: center; padding: 10px; border-bottom: 1px solid #eee; text-transform: uppercase; color: var(--primary); }
 
-        .empty-state { text-align: center; padding: 50px 20px; color: var(--text-sub); background: white; border-radius: 20px; margin-top: 10px; border: 1px dashed var(--border); }
-
+        /* CARTE COURS */
         .course-card {
-            background: var(--surface); border-radius: 18px; padding: 20px; margin-bottom: 15px;
-            display: grid; grid-template-columns: 80px 1fr; gap: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-left: 6px solid var(--border); position: relative;
+            background: var(--surface); border-radius: 12px; padding: 15px;
+            display: flex; flex-direction: column; gap: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03); border-left: 5px solid var(--border);
+            cursor: pointer;
         }
-        .time-col { display: flex; flex-direction: column; justify-content: center; text-align: center; border-right: 2px solid #f0f2f5; padding-right: 15px; }
-        .time-start { font-weight: 800; font-size: 1.2rem; color: var(--text-main); }
-        .time-end { font-size: 0.9rem; color: var(--text-sub); font-weight: 500; }
-        .info-col { display: flex; flex-direction: column; justify-content: center; }
-        .course-title { font-weight: 700; font-size: 1.1rem; margin-bottom: 6px; line-height: 1.25; }
-        .course-meta { font-size: 0.9rem; color: var(--text-sub); display: flex; flex-wrap: wrap; gap: 8px; }
+        .time-row { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); display: flex; justify-content: space-between; }
+        .course-title { font-weight: 700; font-size: 1rem; line-height: 1.3; }
+        .course-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+        .badge { background: #f0f2f5; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
         
-        .badge { background: #f0f2f5; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .badge-prof { cursor: pointer; transition: background 0.2s; }
-        .badge-prof:hover { background: #e4e6eb; color: var(--primary); }
-
         /* MODAL */
-        #modal-overlay {
-            position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
-            z-index: 4000; display: flex; align-items: center; justify-content: center;
-            opacity: 0; pointer-events: none; transition: opacity 0.2s;
-        }
+        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 4000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; }
         #modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-box {
-            background: white; width: 90%; max-width: 350px; padding: 25px;
-            border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            text-align: center; transform: scale(0.9); transition: transform 0.2s;
-            position: relative;
-        }
+        .modal-box { background: white; width: 90%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; position: relative; transform: scale(0.9); transition: 0.2s; }
         #modal-overlay.active .modal-box { transform: scale(1); }
-        .modal-icon { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
-        .modal-title { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
-        .modal-name { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px; }
-        .close-icon {
-            position: absolute; top: 15px; right: 15px; width: 30px; height: 30px;
-            background: #f0f2f5; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: #666;
-        }
+        .close-icon { position: absolute; top: 15px; right: 15px; padding: 5px; cursor: pointer; }
 
-        /* Styles dynamiques */
-        .type-TP { border-left-color: var(--tp-border); background: linear-gradient(to right, #f5faff, white 50%); }
-        .type-TP .course-title, .type-TP .time-start { color: var(--tp-text); }
-        .type-TD { border-left-color: var(--td-border); background: linear-gradient(to right, #f6fbf7, white 50%); }
-        .type-TD .course-title, .type-TD .time-start { color: var(--td-text); }
-        .type-CM { border-left-color: var(--cm-border); background: linear-gradient(to right, #fff5f5, white 50%); }
-        .type-CM .course-title, .type-CM .time-start { color: var(--cm-text); }
-        .type-Exam { border-left-color: var(--exam-border); background: linear-gradient(to right, #fffbf5, white 50%); }
-        .type-Exam .course-title { color: var(--exam-text); }
-
-        #loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.3s; }
+        /* LOADING */
+        #loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; }
         .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .hidden { display: none !important; }
+
+        /* TYPES */
+        .type-TP { border-color: var(--tp-border); background: linear-gradient(to bottom right, white, #f5faff); }
+        .type-TP .course-title { color: var(--tp-text); }
+        .type-TD { border-color: var(--td-border); background: linear-gradient(to bottom right, white, #f6fbf7); }
+        .type-TD .course-title { color: var(--td-text); }
+        .type-CM { border-color: var(--cm-border); background: linear-gradient(to bottom right, white, #fff5f5); }
+        .type-CM .course-title { color: var(--cm-text); }
+        .type-Exam { border-color: var(--exam-border); background: linear-gradient(to bottom right, white, #fffbf5); }
+
+        /* PC RESPONSIVE */
+        @media (min-width: 800px) {
+            .day-column { min-width: 0; flex: 1; } /* Colonnes égales sur PC */
+            .week-container { overflow-x: hidden; } /* Pas de scroll sur PC */
+        }
     </style>
 </head>
 <body>
@@ -138,25 +104,22 @@
     <div id="modal-overlay" onclick="closeModal(event)">
         <div class="modal-box">
             <div class="close-icon" onclick="closeModal(event)"><i class="fa-solid fa-xmark"></i></div>
-            <div class="modal-icon"><i class="fa-solid fa-user-tie"></i></div>
-            <div class="modal-title">Enseignant</div>
-            <div class="modal-name" id="modal-prof-name">...</div>
+            <h3 style="margin-bottom:10px; color:var(--text-sub)">Enseignant</h3>
+            <h2 id="modal-prof-name" style="color:var(--text-main)">...</h2>
         </div>
     </div>
 
     <header>
         <div class="header-top">
             <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
-                <option value="1A">Groupe 1A</option>
-                <option value="1B">Groupe 1B</option>
-                <option value="1C">Groupe 1C</option>
-                <option value="1D">Groupe 1D</option>
-                <option value="1E">Groupe 1E</option>
-                <option value="1F">Groupe 1F</option>
+                <option value="1A">Groupe 1A</option><option value="1B">Groupe 1B</option>
+                <option value="1C">Groupe 1C</option><option value="1D">Groupe 1D</option>
+                <option value="1E">Groupe 1E</option><option value="1F">Groupe 1F</option>
             </select>
-            <button class="btn-reload" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i></button>
+            <a href="https://scodocetudiant.iut-blagnac.fr/" target="_blank" style="text-decoration:none; color:var(--primary); font-weight:700; font-size:0.9rem;">
+                <i class="fa-solid fa-graduation-cap"></i> Notes
+            </a>
         </div>
-        
         <div class="view-toggle">
             <div class="toggle-option active" id="view-day" onclick="switchView('day')">Jour</div>
             <div class="toggle-option" id="view-week" onclick="switchView('week')">Semaine</div>
@@ -169,17 +132,17 @@
         <button class="nav-btn" onclick="navDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
-    <div id="schedule-container"></div>
+    <div id="main-scroll">
+        <div id="schedule-container"></div>
+    </div>
 
     <script>
-        const PROFESSORS = {
-            "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL"
-        };
+        const PROFESSORS = { "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL" };
 
         let eventsData = [];
         let currentDate = new Date();
         let currentGroup = localStorage.getItem('user_group') || '1C';
-        let currentView = 'day'; // 'day' ou 'week'
+        let currentView = 'day';
 
         window.onload = () => {
             document.getElementById('group-select').value = currentGroup;
@@ -203,7 +166,7 @@
             } catch (e) {
                 console.error(e);
                 document.getElementById('schedule-container').innerHTML = 
-                    `<div class="empty-state">Planning indisponible (Attendre le robot)</div>`;
+                    `<div class="empty-state">Données indisponibles</div>`;
             } finally {
                 document.getElementById('loading').classList.add('hidden');
             }
@@ -236,7 +199,6 @@
             render();
         }
 
-        // --- GESTION DES VUES ---
         function switchView(view) {
             currentView = view;
             document.getElementById('view-day').classList.toggle('active', view === 'day');
@@ -245,18 +207,9 @@
         }
 
         function navDate(offset) {
-            if (currentView === 'day') {
-                currentDate.setDate(currentDate.getDate() + offset);
-            } else {
-                // En vue semaine, on saute de 7 jours
-                currentDate.setDate(currentDate.getDate() + (offset * 7));
-            }
+            const delta = (currentView === 'day') ? 1 : 7;
+            currentDate.setDate(currentDate.getDate() + (offset * delta));
             render();
-        }
-
-        function render() {
-            if (currentView === 'day') renderDay();
-            else renderWeek();
         }
 
         function getMonday(d) {
@@ -265,8 +218,14 @@
             return new Date(d.setDate(diff));
         }
 
+        function render() {
+            if (currentView === 'day') renderDay();
+            else renderWeek();
+        }
+
         function renderDay() {
             const container = document.getElementById('schedule-container');
+            container.className = ""; // Reset class
             document.getElementById('date-display').innerText = currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             container.innerHTML = "";
 
@@ -275,42 +234,44 @@
             const dayEvents = eventsData.filter(e => e.start >= startOfDay && e.start <= endOfDay);
 
             if (dayEvents.length === 0) {
-                container.innerHTML = `<div class="empty-state">Rien de prévu 💤</div>`;
+                container.innerHTML = `<div class="empty-state" style="padding:20px;">Pas de cours 🎉</div>`;
                 return;
             }
+            
+            // Container vertical simple
             dayEvents.forEach(e => container.innerHTML += createCard(e));
         }
 
         function renderWeek() {
             const container = document.getElementById('schedule-container');
-            const monday = getMonday(currentDate);
-            // Calculer la date du vendredi pour l'affichage "Semaine du..."
-            const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+            container.className = "week-container"; // Active le mode horizontal
             
+            const monday = getMonday(currentDate);
+            const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
             document.getElementById('date-display').innerText = `Sem. du ${monday.getDate()} ${monday.toLocaleDateString('fr-FR', {month:'short'})}`;
+            
             container.innerHTML = "";
 
-            let hasEvents = false;
-
-            // Boucle du Lundi (0) au Samedi (5)
-            for(let i=0; i<6; i++) {
+            const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+            
+            for(let i=0; i<5; i++) {
                 const dayDate = new Date(monday);
                 dayDate.setDate(monday.getDate() + i);
-                
                 const start = new Date(dayDate); start.setHours(0,0,0,0);
                 const end = new Date(dayDate); end.setHours(23,59,59,999);
                 
                 const dayEvents = eventsData.filter(e => e.start >= start && e.start <= end);
                 
-                if(dayEvents.length > 0) {
-                    hasEvents = true;
-                    const dateStr = dayDate.toLocaleDateString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
-                    container.innerHTML += `<div class="day-header">${dateStr}</div>`;
-                    dayEvents.forEach(e => container.innerHTML += createCard(e));
-                }
+                let dayHtml = `<div class="day-column">
+                    <div class="day-col-header">${days[i]} ${dayDate.getDate()}</div>`;
+                
+                if(dayEvents.length === 0) dayHtml += `<div style="text-align:center; padding:10px; color:#aaa;">Libre</div>`;
+                
+                dayEvents.forEach(e => dayHtml += createCard(e));
+                dayHtml += `</div>`;
+                
+                container.innerHTML += dayHtml;
             }
-
-            if (!hasEvents) container.innerHTML = `<div class="empty-state">Semaine libre ! 🌴</div>`;
         }
 
         function createCard(e) {
@@ -319,22 +280,19 @@
             const profFullName = PROFESSORS[e.prof] || e.prof;
 
             return `
-            <div class="course-card type-${e.type}">
-                <div class="time-col"><span class="time-start">${hStart}</span><span class="time-end">${hEnd}</span></div>
-                <div class="info-col">
-                    <div class="course-title">${e.title}</div>
-                    <div class="course-meta">
-                        <span class="badge"><i class="fa-solid fa-location-dot"></i> ${e.location}</span>
-                        <span class="badge badge-prof" onclick="showProfName('${e.prof}')">
-                            <i class="fa-solid fa-user"></i> ${e.prof}
-                        </span>
-                    </div>
+            <div class="course-card type-${e.type}" onclick="showProf('${e.prof}')">
+                <div class="time-row">
+                    <span>${hStart} - ${hEnd}</span>
+                    <span>${e.location}</span>
+                </div>
+                <div class="course-title">${e.title}</div>
+                <div class="course-badges">
+                    <span class="badge"><i class="fa-solid fa-user"></i> ${e.prof}</span>
                 </div>
             </div>`;
         }
 
-        // --- MODAL ---
-        function showProfName(code) {
+        function showProf(code) {
             const name = PROFESSORS[code] || code;
             document.getElementById('modal-prof-name').innerText = name;
             document.getElementById('modal-overlay').classList.add('active');
