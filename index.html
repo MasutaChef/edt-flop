@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EDT BUT1</title>
+    <title>Mon EDT</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ical.js/1.5.0/ical.min.js"></script>
@@ -21,13 +21,16 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background-color: var(--bg); color: var(--text-main); padding-bottom: 80px; font-size: 16px; }
 
-        /* HEADER & SELECTEUR */
+        /* HEADER FIXE */
         header {
-            position: fixed; top: 0; left: 0; right: 0; height: 70px;
+            position: fixed; top: 0; left: 0; right: 0; height: auto;
             background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid var(--border);
-            padding: 0 15px; z-index: 1000; display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 15px; z-index: 1000; display: flex; flex-direction: column; gap: 10px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.03);
         }
+        
+        .header-top { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+
         .group-selector {
             background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px;
             font-weight: 700; color: var(--primary); font-size: 1rem; outline: none; cursor: pointer;
@@ -37,20 +40,40 @@
             cursor: pointer; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
         }
 
-        /* CONTROLS */
+        /* TOGGLE VIEW (JOUR / SEMAINE) */
+        .view-toggle {
+            display: flex; background: #f0f2f5; border-radius: 10px; padding: 4px;
+            width: 100%; max-width: 400px; margin: 0 auto;
+        }
+        .toggle-option {
+            flex: 1; text-align: center; padding: 8px; font-weight: 600; font-size: 0.9rem;
+            border-radius: 8px; cursor: pointer; color: var(--text-sub); transition: 0.2s;
+        }
+        .toggle-option.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* CONTROLS DATE */
         .date-controls {
-            padding-top: 90px; padding-bottom: 20px; max-width: 800px; margin: 0 auto;
+            padding-top: 130px; /* Espace pour le header plus grand */
+            padding-bottom: 20px; max-width: 800px; margin: 0 auto;
             display: flex; justify-content: space-between; align-items: center; padding-left: 20px; padding-right: 20px;
         }
-        .current-date { font-weight: 800; font-size: 1.3rem; text-transform: capitalize; }
+        .current-date { font-weight: 800; font-size: 1.2rem; text-transform: capitalize; text-align: center; }
         .nav-btn {
             background: var(--surface); border: 1px solid var(--border); width: 48px; height: 48px; border-radius: 50%;
             font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
 
-        /* SCHEDULE */
+        /* LISTE DES COURS */
         #schedule-container { padding: 0 20px; max-width: 800px; margin: 0 auto; }
+        
+        .day-header {
+            font-size: 0.9rem; font-weight: 700; color: var(--text-sub); text-transform: uppercase; letter-spacing: 1px;
+            margin: 25px 0 10px 5px; position: sticky; top: 120px; z-index: 90;
+            background: var(--bg); padding: 5px 0; display: flex; align-items: center; gap: 10px;
+        }
+        .day-header::after { content: ""; flex: 1; height: 1px; background: #e4e6eb; }
+
         .empty-state { text-align: center; padding: 50px 20px; color: var(--text-sub); background: white; border-radius: 20px; margin-top: 10px; border: 1px dashed var(--border); }
 
         .course-card {
@@ -66,36 +89,31 @@
         .course-meta { font-size: 0.9rem; color: var(--text-sub); display: flex; flex-wrap: wrap; gap: 8px; }
         
         .badge { background: #f0f2f5; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-        .badge-prof { cursor: pointer; transition: background 0.2s; position: relative; }
+        .badge-prof { cursor: pointer; transition: background 0.2s; }
         .badge-prof:hover { background: #e4e6eb; color: var(--primary); }
 
-        /* --- MODAL (POPUP) --- */
+        /* MODAL */
         #modal-overlay {
             position: fixed; inset: 0; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px);
             z-index: 4000; display: flex; align-items: center; justify-content: center;
             opacity: 0; pointer-events: none; transition: opacity 0.2s;
         }
         #modal-overlay.active { opacity: 1; pointer-events: auto; }
-
         .modal-box {
             background: white; width: 90%; max-width: 350px; padding: 25px;
             border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-            text-align: center; transform: scale(0.9); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center; transform: scale(0.9); transition: transform 0.2s;
             position: relative;
         }
         #modal-overlay.active .modal-box { transform: scale(1); }
-
         .modal-icon { font-size: 2.5rem; color: var(--primary); margin-bottom: 15px; }
-        .modal-title { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }
+        .modal-title { font-size: 0.9rem; color: var(--text-sub); margin-bottom: 5px; text-transform: uppercase; font-weight: 700; }
         .modal-name { font-size: 1.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px; }
-        
         .close-icon {
-            position: absolute; top: 15px; right: 15px;
-            width: 30px; height: 30px; background: #f0f2f5; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; color: #666; transition: 0.2s;
+            position: absolute; top: 15px; right: 15px; width: 30px; height: 30px;
+            background: #f0f2f5; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; color: #666;
         }
-        .close-icon:hover { background: #e4e6eb; color: #333; }
 
         /* Styles dynamiques */
         .type-TP { border-left-color: var(--tp-border); background: linear-gradient(to right, #f5faff, white 50%); }
@@ -127,27 +145,33 @@
     </div>
 
     <header>
-        <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
-            <option value="1A">Groupe 1A</option>
-            <option value="1B">Groupe 1B</option>
-            <option value="1C">Groupe 1C</option>
-            <option value="1D">Groupe 1D</option>
-            <option value="1E">Groupe 1E</option>
-            <option value="1F">Groupe 1F</option>
-        </select>
-        <button class="btn-reload" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i></button>
+        <div class="header-top">
+            <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
+                <option value="1A">Groupe 1A</option>
+                <option value="1B">Groupe 1B</option>
+                <option value="1C">Groupe 1C</option>
+                <option value="1D">Groupe 1D</option>
+                <option value="1E">Groupe 1E</option>
+                <option value="1F">Groupe 1F</option>
+            </select>
+            <button class="btn-reload" onclick="location.reload()"><i class="fa-solid fa-rotate-right"></i></button>
+        </div>
+        
+        <div class="view-toggle">
+            <div class="toggle-option active" id="view-day" onclick="switchView('day')">Jour</div>
+            <div class="toggle-option" id="view-week" onclick="switchView('week')">Semaine</div>
+        </div>
     </header>
 
     <div class="date-controls">
-        <button class="nav-btn" onclick="changeDay(-1)"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-btn" onclick="navDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
         <div class="current-date" id="date-display">--</div>
-        <button class="nav-btn" onclick="changeDay(1)"><i class="fa-solid fa-chevron-right"></i></button>
+        <button class="nav-btn" onclick="navDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
     <div id="schedule-container"></div>
 
     <script>
-        // --- DICTIONNAIRE PROFS ---
         const PROFESSORS = {
             "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL"
         };
@@ -155,6 +179,7 @@
         let eventsData = [];
         let currentDate = new Date();
         let currentGroup = localStorage.getItem('user_group') || '1C';
+        let currentView = 'day'; // 'day' ou 'week'
 
         window.onload = () => {
             document.getElementById('group-select').value = currentGroup;
@@ -172,13 +197,13 @@
             const icsUrl = `./edt_${group}.ics?t=` + new Date().getTime();
             try {
                 const response = await fetch(icsUrl);
-                if (!response.ok) throw new Error("Pas de fichier");
+                if (!response.ok) throw new Error("Fichier introuvable");
                 const text = await response.text();
                 processICS(text);
             } catch (e) {
                 console.error(e);
                 document.getElementById('schedule-container').innerHTML = 
-                    `<div class="empty-state">Planning ${group} indisponible (attendre synchro)</div>`;
+                    `<div class="empty-state">Planning indisponible (Attendre le robot)</div>`;
             } finally {
                 document.getElementById('loading').classList.add('hidden');
             }
@@ -192,53 +217,55 @@
             eventsData = vevents.map(evt => {
                 const event = new ICAL.Event(evt);
                 let summary = event.summary || "Cours";
-                let title = summary;
-                let prof = "";
-                let type = "Autre";
+                let title = summary; let prof = ""; let type = "Autre";
 
                 if (summary.includes("-")) {
                     const parts = summary.split("-");
                     prof = parts[parts.length - 1].trim(); 
                     title = parts.slice(0, -1).join("-").trim();
                 }
-
                 const up = summary.toUpperCase();
                 if (up.includes("TP")) type = "TP";
                 else if (up.includes("TD")) type = "TD";
                 else if (up.includes("CM") || up.includes("AMPHI")) type = "CM";
                 else if (up.includes("EXAM")) type = "Exam";
 
-                return {
-                    title: title, prof: prof, type: type,
-                    location: event.location || "?",
-                    start: event.startDate.toJSDate(),
-                    end: event.endDate.toJSDate()
-                };
+                return { title, prof, type, location: event.location || "?", start: event.startDate.toJSDate(), end: event.endDate.toJSDate() };
             });
             eventsData.sort((a,b) => a.start - b.start);
-            renderSchedule();
+            render();
         }
 
-        function changeDay(offset) {
-            currentDate.setDate(currentDate.getDate() + offset);
-            renderSchedule();
+        // --- GESTION DES VUES ---
+        function switchView(view) {
+            currentView = view;
+            document.getElementById('view-day').classList.toggle('active', view === 'day');
+            document.getElementById('view-week').classList.toggle('active', view === 'week');
+            render();
         }
 
-        // --- GESTION MODAL ---
-        function showProfName(code) {
-            const name = PROFESSORS[code] || code;
-            document.getElementById('modal-prof-name').innerText = name;
-            document.getElementById('modal-overlay').classList.add('active');
-        }
-
-        function closeModal(e) {
-            // Ferme si on clique sur la croix ou l'overlay (pas la boite elle-même)
-            if(e.target.id === 'modal-overlay' || e.currentTarget.classList.contains('close-icon')) {
-                document.getElementById('modal-overlay').classList.remove('active');
+        function navDate(offset) {
+            if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() + offset);
+            } else {
+                // En vue semaine, on saute de 7 jours
+                currentDate.setDate(currentDate.getDate() + (offset * 7));
             }
+            render();
         }
 
-        function renderSchedule() {
+        function render() {
+            if (currentView === 'day') renderDay();
+            else renderWeek();
+        }
+
+        function getMonday(d) {
+            d = new Date(d);
+            var day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function renderDay() {
             const container = document.getElementById('schedule-container');
             document.getElementById('date-display').innerText = currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
             container.innerHTML = "";
@@ -251,28 +278,71 @@
                 container.innerHTML = `<div class="empty-state">Rien de prévu 💤</div>`;
                 return;
             }
+            dayEvents.forEach(e => container.innerHTML += createCard(e));
+        }
 
-            dayEvents.forEach(e => {
-                const hStart = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-                const hEnd = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+        function renderWeek() {
+            const container = document.getElementById('schedule-container');
+            const monday = getMonday(currentDate);
+            // Calculer la date du vendredi pour l'affichage "Semaine du..."
+            const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
+            
+            document.getElementById('date-display').innerText = `Sem. du ${monday.getDate()} ${monday.toLocaleDateString('fr-FR', {month:'short'})}`;
+            container.innerHTML = "";
+
+            let hasEvents = false;
+
+            // Boucle du Lundi (0) au Samedi (5)
+            for(let i=0; i<6; i++) {
+                const dayDate = new Date(monday);
+                dayDate.setDate(monday.getDate() + i);
                 
-                // Recherche du nom complet pour le titre (PC)
-                const profFullName = PROFESSORS[e.prof] || e.prof;
+                const start = new Date(dayDate); start.setHours(0,0,0,0);
+                const end = new Date(dayDate); end.setHours(23,59,59,999);
                 
-                container.innerHTML += `
-                <div class="course-card type-${e.type}">
-                    <div class="time-col"><span class="time-start">${hStart}</span><span class="time-end">${hEnd}</span></div>
-                    <div class="info-col">
-                        <div class="course-title">${e.title}</div>
-                        <div class="course-meta">
-                            <span class="badge"><i class="fa-solid fa-location-dot"></i> ${e.location}</span>
-                            <span class="badge badge-prof" onclick="showProfName('${e.prof}')">
-                                <i class="fa-solid fa-user"></i> ${e.prof}
-                            </span>
-                        </div>
+                const dayEvents = eventsData.filter(e => e.start >= start && e.start <= end);
+                
+                if(dayEvents.length > 0) {
+                    hasEvents = true;
+                    const dateStr = dayDate.toLocaleDateString('fr-FR', {weekday: 'long', day: 'numeric', month: 'long'});
+                    container.innerHTML += `<div class="day-header">${dateStr}</div>`;
+                    dayEvents.forEach(e => container.innerHTML += createCard(e));
+                }
+            }
+
+            if (!hasEvents) container.innerHTML = `<div class="empty-state">Semaine libre ! 🌴</div>`;
+        }
+
+        function createCard(e) {
+            const hStart = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            const hEnd = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            const profFullName = PROFESSORS[e.prof] || e.prof;
+
+            return `
+            <div class="course-card type-${e.type}">
+                <div class="time-col"><span class="time-start">${hStart}</span><span class="time-end">${hEnd}</span></div>
+                <div class="info-col">
+                    <div class="course-title">${e.title}</div>
+                    <div class="course-meta">
+                        <span class="badge"><i class="fa-solid fa-location-dot"></i> ${e.location}</span>
+                        <span class="badge badge-prof" onclick="showProfName('${e.prof}')">
+                            <i class="fa-solid fa-user"></i> ${e.prof}
+                        </span>
                     </div>
-                </div>`;
-            });
+                </div>
+            </div>`;
+        }
+
+        // --- MODAL ---
+        function showProfName(code) {
+            const name = PROFESSORS[code] || code;
+            document.getElementById('modal-prof-name').innerText = name;
+            document.getElementById('modal-overlay').classList.add('active');
+        }
+        function closeModal(e) {
+            if(e.target.id === 'modal-overlay' || e.currentTarget.classList.contains('close-icon')) {
+                document.getElementById('modal-overlay').classList.remove('active');
+            }
         }
     </script>
 </body>
