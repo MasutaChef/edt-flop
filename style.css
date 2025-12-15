@@ -1,5 +1,5 @@
 :root {
-    /* THÈME CLAIR (Défaut) */
+    /* --- THÈME CLAIR (Défaut) --- */
     --primary: #c0392b; 
     --bg: #f2f4f7; 
     --surface: #ffffff;
@@ -9,20 +9,20 @@
     --header-bg: rgba(255, 255, 255, 0.95);
     --card-shadow: 0 2px 6px rgba(0,0,0,0.04);
     
-    /* Couleurs Types (Clair) */
+    /* Dégradés pour les cartes (Clair) */
     --tp-grad: linear-gradient(to right, white, #f5faff);
     --td-grad: linear-gradient(to right, white, #f6fbf7);
     --cm-grad: linear-gradient(to right, white, #fff5f5);
     --exam-grad: linear-gradient(to right, white, #fffbf5);
 
-    /* Couleurs Bordures */
+    /* Couleurs Bordures & Textes */
     --tp-border: #2196f3; --tp-text: #0d47a1;
     --td-border: #4caf50; --td-text: #1b5e20;
     --cm-border: #ef5350; --cm-text: #b71c1c;
     --exam-border: #ff9800; --exam-text: #e65100;
 }
 
-/* THÈME SOMBRE */
+/* --- THÈME SOMBRE --- */
 [data-theme="dark"] {
     --primary: #ff6b6b;
     --bg: #121212;
@@ -33,29 +33,33 @@
     --header-bg: rgba(30, 30, 30, 0.95);
     --card-shadow: 0 2px 6px rgba(0,0,0,0.2);
 
-    /* Couleurs Types (Sombre : pas de dégradé blanc, fond uni) */
+    /* Dégradés (Sombre : fond uni pour lisibilité) */
     --tp-grad: #252627;
     --td-grad: #252627;
     --cm-grad: #252627;
     --exam-grad: #252627;
     
-    /* Ajustement textes couleurs en sombre */
+    /* Ajustement couleurs textes en sombre */
     --tp-text: #64b5f6;
     --td-text: #81c784;
     --cm-text: #e57373;
     --exam-text: #ffb74d;
 }
 
+/* --- RESET & BASE --- */
 * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
 body { background-color: var(--bg); color: var(--text-main); font-size: 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; transition: background 0.3s; }
+button { border: none; background: none; cursor: pointer; color: inherit; }
+a { text-decoration: none; color: inherit; }
 
-/* HEADER */
+/* --- HEADER --- */
 header {
     background: var(--header-bg); backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border); padding: 10px 15px; z-index: 100; flex-shrink: 0;
     transition: background 0.3s;
-    padding-top: env(safe-area-inset-top);
+    padding-top: max(10px, env(safe-area-inset-top)); /* Support Encoche iPhone */
 }
+
 .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
 
 .group-selector {
@@ -67,26 +71,26 @@ header {
 
 .btn-icon {
     width: 36px; height: 36px; border-radius: 50%; background: var(--bg); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; color: var(--text-main); cursor: pointer;
-    font-size: 1.1rem; transition: 0.2s;
+    display: flex; align-items: center; justify-content: center; color: var(--text-main); font-size: 1.1rem; transition: 0.2s;
 }
+
 .btn-notes {
-    text-decoration: none; background: rgba(192, 57, 43, 0.1); color: var(--primary);
+    background: rgba(192, 57, 43, 0.1); color: var(--primary);
     padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
     display: flex; align-items: center; gap: 6px; border: 1px solid rgba(192, 57, 43, 0.2);
 }
 
-/* TOGGLE SWITCH */
+/* --- SWITCH VUE (Jour/Semaine) --- */
 .view-switch {
     display: flex; background: var(--bg); padding: 4px; border-radius: 10px; max-width: 300px; margin: 0 auto; border: 1px solid var(--border);
 }
 .switch-opt {
     flex: 1; text-align: center; padding: 6px; font-size: 0.85rem; font-weight: 600;
-    border-radius: 7px; color: var(--text-sub); cursor: pointer; transition: 0.2s;
+    border-radius: 7px; color: var(--text-sub); transition: 0.2s;
 }
 .switch-opt.active { background: var(--surface); color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
 
-/* NAV DATES */
+/* --- DATE NAVIGATION --- */
 .date-nav {
     display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;
     background: var(--bg); flex-shrink: 0; transition: background 0.3s;
@@ -94,16 +98,16 @@ header {
 .date-title { font-weight: 800; font-size: 1.1rem; text-transform: capitalize; }
 .nav-btn {
     width: 36px; height: 36px; background: var(--surface); border: 1px solid var(--border); color: var(--text-main);
-    border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
+    border-radius: 50%; display: flex; align-items: center; justify-content: center;
 }
 
-/* ZONE PRINCIPALE */
+/* --- MAIN CONTAINER --- */
 #main-view { flex: 1; overflow-y: hidden; position: relative; }
 
-/* VUE JOUR */
+/* Vue Jour (Liste Verticale) */
 #day-container { padding: 10px 20px 80px 20px; overflow-y: auto; height: 100%; display: block; }
 
-/* VUE SEMAINE */
+/* Vue Semaine (Scroll Horizontal) */
 #week-container {
     display: none; height: 100%; overflow-x: auto; overflow-y: hidden;
     scroll-snap-type: x mandatory; padding: 10px 10px 20px 10px;
@@ -121,15 +125,26 @@ header {
 }
 .col-content { flex: 1; overflow-y: auto; padding: 10px; }
 
-/* CARTES COURS */
+/* --- CARTES COURS (Styles Sémantiques) --- */
 .card {
+    display: block;
     background: var(--surface); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px;
-    border-left: 5px solid #ccc; box-shadow: var(--card-shadow); border: 1px solid var(--border); border-left-width: 5px;
+    border: 1px solid var(--border); border-left: 5px solid #ccc; box-shadow: var(--card-shadow);
     cursor: pointer; position: relative; transition: transform 0.1s;
 }
 .card:active { transform: scale(0.98); }
 
-/* INDICATEUR LIVE (EN COURS) */
+.time-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; }
+.card-title { font-weight: 700; font-size: 1rem; line-height: 1.3; color: var(--text-main); margin: 0; }
+.card-footer { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+
+.pill { 
+    background: var(--bg); color: var(--text-sub); padding: 4px 8px; border-radius: 6px; 
+    font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 5px; 
+}
+.pill-loc:hover { background: #e3f2fd; color: #1565c0; }
+
+/* --- INDICATEUR LIVE (EN COURS) --- */
 .card.is-live {
     border: 2px solid #e74c3c !important;
     border-left: 5px solid #e74c3c !important;
@@ -146,48 +161,60 @@ header {
     100% { box-shadow: 0 0 0 0 rgba(231, 76, 60, 0); }
 }
 
-.time-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; }
-.card-title { font-weight: 700; font-size: 1rem; line-height: 1.3; color: var(--text-main); }
-.card-footer { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
-
-.pill { background: var(--bg); color: var(--text-sub); padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-.pill-loc:hover { background: #e3f2fd; color: #1565c0; }
-
-/* POPUP (MODAL) */
+/* --- POPUP / MODAL --- */
 #modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);
-    z-index: 5000; display: flex; align-items: center; justify-content: center;
-    opacity: 0; pointer-events: none; transition: 0.2s;
+    background: transparent; border: none; width: 100%; height: 100%; max-width: 100%; max-height: 100%;
+    position: fixed; inset: 0; z-index: 5000; 
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none; transition: 0.2s; backdrop-filter: blur(4px); background: rgba(0,0,0,0.6);
 }
 #modal.open { opacity: 1; pointer-events: auto; }
+
 .modal-card {
     background: var(--surface); width: 85%; max-width: 320px; padding: 30px;
-    border-radius: 24px; text-align: center; transform: scale(0.9); transition: 0.2s; position: relative;
+    border-radius: 24px; text-align: center; transform: scale(0.9); transition: all 0.2s ease-out; position: relative;
     box-shadow: 0 20px 50px rgba(0,0,0,0.3); border: 1px solid var(--border);
 }
 #modal.open .modal-card { transform: scale(1); }
-.modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; cursor: pointer; padding: 5px; color: var(--text-sub); }
-.modal-btn { 
-    display: inline-block; margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white;
-    text-decoration: none; border-radius: 50px; font-weight: 600; font-size: 0.9rem;
+
+/* MODE LARGE (Pour le plan) */
+.modal-card.large {
+    max-width: 800px;
+    width: 95%;
+    padding: 15px;
+}
+.modal-card.large img {
+    max-height: 70vh;
+    object-fit: contain;
+    background: #f0f2f5;
 }
 
-/* ETATS */
+.modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; padding: 5px; color: var(--text-sub); }
+.modal-btn { 
+    display: inline-block; margin-top: 15px; padding: 10px 20px; background: var(--primary); color: white;
+    border-radius: 50px; font-weight: 600; font-size: 0.9rem;
+}
+
+/* --- ETATS --- */
 .empty { text-align: center; padding: 40px 20px; color: var(--text-sub); font-style: italic; }
 .loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; }
 .spinner { width: 40px; height: 40px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-/* TYPES COULEURS */
+/* --- TYPES COURS --- */
 .tp { border-color: var(--tp-border) !important; background: var(--tp-grad); }
 .tp .card-title { color: var(--tp-text); }
+
 .td { border-color: var(--td-border) !important; background: var(--td-grad); }
 .td .card-title { color: var(--td-text); }
+
 .cm { border-color: var(--cm-border) !important; background: var(--cm-grad); }
 .cm .card-title { color: var(--cm-text); }
+
 .exam { border-color: var(--exam-border) !important; background: var(--exam-grad); }
 .exam .card-title { color: var(--exam-text); }
 
-/* RESPONSIVE PC */
+/* --- RESPONSIVE PC --- */
 @media (min-width: 800px) {
     .week-column { min-width: 0; flex: 1; max-width: none; margin-right: 10px; }
     #week-container { overflow-x: hidden; display: flex; }
