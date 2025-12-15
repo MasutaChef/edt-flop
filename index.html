@@ -10,90 +10,130 @@
 
     <style>
         :root {
-            --primary: #c0392b; --bg: #f0f2f5; --surface: #ffffff;
+            --primary: #c0392b; --bg: #f2f4f7; --surface: #ffffff;
             --text-main: #1c1e21; --text-sub: #65676b; --border: #e4e6eb;
-            /* Couleurs */
+            /* Couleurs Cours */
             --tp-bg: #e3f2fd; --tp-border: #2196f3; --tp-text: #0d47a1;
             --td-bg: #e8f5e9; --td-border: #4caf50; --td-text: #1b5e20;
             --cm-bg: #ffebee; --cm-border: #ef5350; --cm-text: #b71c1c;
             --exam-bg: #fff3e0; --exam-border: #ff9800; --exam-text: #e65100;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: var(--bg); color: var(--text-main); padding-bottom: 80px; font-size: 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { background-color: var(--bg); color: var(--text-main); font-size: 15px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
         /* HEADER */
         header {
-            background: rgba(255, 255, 255, 0.98); border-bottom: 1px solid var(--border);
-            padding: 10px 15px; z-index: 1000; flex-shrink: 0;
+            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); padding: 10px 15px; z-index: 100; flex-shrink: 0;
         }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .group-selector { background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px; font-weight: 700; color: var(--primary); font-size: 0.9rem; }
-        .view-toggle { display: flex; background: #f0f2f5; border-radius: 8px; padding: 3px; max-width: 300px; margin: 0 auto; }
-        .toggle-option { flex: 1; text-align: center; padding: 6px; font-weight: 600; font-size: 0.85rem; border-radius: 6px; cursor: pointer; color: var(--text-sub); }
-        .toggle-option.active { background: white; color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        
+        .group-selector {
+            background: #f0f2f5; border: none; padding: 8px 12px; border-radius: 8px;
+            font-weight: 700; color: var(--primary); font-size: 0.95rem; outline: none;
+        }
+        
+        .btn-notes {
+            text-decoration: none; background: #fff0f0; color: var(--primary);
+            padding: 8px 12px; border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            display: flex; align-items: center; gap: 6px; border: 1px solid #fcecec;
+        }
 
-        /* DATE NAV */
-        .date-controls {
+        /* TOGGLE SWITCH */
+        .view-switch {
+            display: flex; background: #f0f2f5; padding: 4px; border-radius: 10px; max-width: 300px; margin: 0 auto;
+        }
+        .switch-opt {
+            flex: 1; text-align: center; padding: 6px; font-size: 0.85rem; font-weight: 600;
+            border-radius: 7px; color: var(--text-sub); cursor: pointer; transition: 0.2s;
+        }
+        .switch-opt.active { background: white; color: var(--text-main); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* NAV DATES */
+        .date-nav {
             display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;
             background: var(--bg); flex-shrink: 0;
         }
-        .current-date { font-weight: 800; font-size: 1.1rem; text-transform: capitalize; }
-        .nav-btn { background: var(--surface); border: 1px solid var(--border); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-
-        /* SCROLL AREA */
-        #main-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 10px; }
-        
-        /* MODE SEMAINE (HORIZONTAL) */
-        .week-container {
-            display: flex; gap: 10px; overflow-x: auto; padding-bottom: 20px;
-            scroll-snap-type: x mandatory; height: 100%; align-items: flex-start;
+        .date-title { font-weight: 800; font-size: 1.1rem; text-transform: capitalize; }
+        .nav-btn {
+            width: 36px; height: 36px; background: white; border: 1px solid var(--border);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
-        .day-column {
-            min-width: 85vw; /* Sur mobile : 85% de l'écran */
-            background: #fff; border-radius: 16px; padding: 10px;
-            scroll-snap-align: center; border: 1px solid var(--border);
-            display: flex; flex-direction: column; gap: 10px;
+
+        /* ZONE PRINCIPALE (SCROLLABLE) */
+        #main-view { flex: 1; overflow-y: hidden; position: relative; }
+
+        /* VUE JOUR (VERTICALE) */
+        #day-container {
+            padding: 10px 20px 80px 20px; overflow-y: auto; height: 100%; display: block;
         }
-        .day-col-header { font-weight: 800; text-align: center; padding: 10px; border-bottom: 1px solid #eee; text-transform: uppercase; color: var(--primary); }
 
-        /* CARTE COURS */
-        .course-card {
-            background: var(--surface); border-radius: 12px; padding: 15px;
-            display: flex; flex-direction: column; gap: 5px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.03); border-left: 5px solid var(--border);
-            cursor: pointer;
+        /* VUE SEMAINE (HORIZONTALE) */
+        #week-container {
+            display: none; height: 100%; overflow-x: auto; overflow-y: hidden;
+            scroll-snap-type: x mandatory; padding: 10px 10px 20px 10px;
         }
-        .time-row { font-size: 0.85rem; font-weight: 700; color: var(--text-sub); display: flex; justify-content: space-between; }
-        .course-title { font-weight: 700; font-size: 1rem; line-height: 1.3; }
-        .course-badges { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
-        .badge { background: #f0f2f5; padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 4px; }
-        
-        /* MODAL */
-        #modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 4000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: 0.2s; }
-        #modal-overlay.active { opacity: 1; pointer-events: auto; }
-        .modal-box { background: white; width: 90%; max-width: 320px; padding: 25px; border-radius: 20px; text-align: center; position: relative; transform: scale(0.9); transition: 0.2s; }
-        #modal-overlay.active .modal-box { transform: scale(1); }
-        .close-icon { position: absolute; top: 15px; right: 15px; padding: 5px; cursor: pointer; }
+        .week-column {
+            min-width: 85vw; /* Mobile : prend presque tout l'écran */
+            max-width: 400px;
+            height: 95%; /* Laisse un peu de marge en bas */
+            background: white; border-radius: 16px; border: 1px solid var(--border);
+            margin-right: 15px; scroll-snap-align: center;
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+        .col-header {
+            padding: 12px; text-align: center; font-weight: 800;
+            background: #fafafa; border-bottom: 1px solid var(--border);
+            text-transform: uppercase; color: var(--primary); letter-spacing: 1px; font-size: 0.9rem;
+        }
+        .col-content { flex: 1; overflow-y: auto; padding: 10px; }
 
-        /* LOADING */
-        #loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; }
-        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        .hidden { display: none !important; }
+        /* CARTES COURS */
+        .card {
+            background: white; border-radius: 12px; padding: 12px 15px; margin-bottom: 10px;
+            border-left: 5px solid #ccc; box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            cursor: pointer; position: relative;
+        }
+        /* Mode sombre pour la vue semaine (fond blanc sur fond blanc c'est moche) */
+        #week-container .card { background: #f8f9fa; box-shadow: none; border: 1px solid #eee; border-left-width: 5px; }
 
-        /* TYPES */
-        .type-TP { border-color: var(--tp-border); background: linear-gradient(to bottom right, white, #f5faff); }
-        .type-TP .course-title { color: var(--tp-text); }
-        .type-TD { border-color: var(--td-border); background: linear-gradient(to bottom right, white, #f6fbf7); }
-        .type-TD .course-title { color: var(--td-text); }
-        .type-CM { border-color: var(--cm-border); background: linear-gradient(to bottom right, white, #fff5f5); }
-        .type-CM .course-title { color: var(--cm-text); }
-        .type-Exam { border-color: var(--exam-border); background: linear-gradient(to bottom right, white, #fffbf5); }
+        .time-row { display: flex; justify-content: space-between; font-size: 0.85rem; color: var(--text-sub); font-weight: 600; margin-bottom: 4px; }
+        .card-title { font-weight: 700; font-size: 1rem; line-height: 1.3; color: var(--text-main); }
+        .card-footer { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+        .pill { background: #f0f2f5; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; gap: 5px; }
 
-        /* PC RESPONSIVE */
+        /* POPUP PROF */
+        #modal {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px);
+            z-index: 5000; display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: 0.2s;
+        }
+        #modal.open { opacity: 1; pointer-events: auto; }
+        .modal-card {
+            background: white; width: 85%; max-width: 320px; padding: 30px;
+            border-radius: 24px; text-align: center; transform: scale(0.9); transition: 0.2s; position: relative;
+        }
+        #modal.open .modal-card { transform: scale(1); }
+        .modal-close { position: absolute; top: 15px; right: 15px; font-size: 1.2rem; cursor: pointer; padding: 5px; color: #888; }
+
+        /* ETATS */
+        .empty { text-align: center; padding: 40px 20px; color: #999; font-style: italic; }
+        .loading { position: fixed; inset: 0; background: var(--bg); z-index: 2000; display: flex; justify-content: center; align-items: center; }
+        .spinner { width: 40px; height: 40px; border: 4px solid #ddd; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; }
+
+        /* TYPES COULEURS */
+        .tp { border-color: var(--tp-border) !important; background: linear-gradient(to right, white, #f5faff); }
+        .tp .card-title { color: var(--tp-text); }
+        .td { border-color: var(--td-border) !important; background: linear-gradient(to right, white, #f6fbf7); }
+        .td .card-title { color: var(--td-text); }
+        .cm { border-color: var(--cm-border) !important; background: linear-gradient(to right, white, #fff5f5); }
+        .cm .card-title { color: var(--cm-text); }
+        .exam { border-color: var(--exam-border) !important; background: linear-gradient(to right, white, #fffbf5); }
+
+        /* RESPONSIVE PC */
         @media (min-width: 800px) {
-            .day-column { min-width: 0; flex: 1; } /* Colonnes égales sur PC */
-            .week-container { overflow-x: hidden; } /* Pas de scroll sur PC */
+            .week-column { min-width: 0; flex: 1; max-width: none; margin-right: 10px; }
+            #week-container { overflow-x: hidden; display: flex; }
         }
     </style>
 </head>
@@ -101,205 +141,182 @@
 
     <div id="loading"><div class="spinner"></div></div>
 
-    <div id="modal-overlay" onclick="closeModal(event)">
-        <div class="modal-box">
-            <div class="close-icon" onclick="closeModal(event)"><i class="fa-solid fa-xmark"></i></div>
-            <h3 style="margin-bottom:10px; color:var(--text-sub)">Enseignant</h3>
-            <h2 id="modal-prof-name" style="color:var(--text-main)">...</h2>
+    <div id="modal" onclick="closeModal(event)">
+        <div class="modal-card">
+            <div class="modal-close" onclick="closeModal(event)"><i class="fa-solid fa-xmark"></i></div>
+            <i class="fa-solid fa-user-tie" style="font-size: 3rem; color: var(--primary); margin-bottom: 15px;"></i>
+            <h3 style="color:var(--text-sub); font-size:0.9rem; text-transform:uppercase; margin-bottom:5px;">Enseignant</h3>
+            <h2 id="modal-name" style="font-size:1.4rem; font-weight:800;">...</h2>
         </div>
     </div>
 
     <header>
-        <div class="header-top">
+        <div class="header-row">
             <select id="group-select" class="group-selector" onchange="changeGroup(this.value)">
                 <option value="1A">Groupe 1A</option><option value="1B">Groupe 1B</option>
                 <option value="1C">Groupe 1C</option><option value="1D">Groupe 1D</option>
                 <option value="1E">Groupe 1E</option><option value="1F">Groupe 1F</option>
             </select>
-            <a href="https://scodocetudiant.iut-blagnac.fr/" target="_blank" style="text-decoration:none; color:var(--primary); font-weight:700; font-size:0.9rem;">
-                <i class="fa-solid fa-graduation-cap"></i> Notes
+            <a href="https://scodocetudiant.iut-blagnac.fr/" target="_blank" class="btn-notes">
+                <i class="fa-solid fa-star"></i> Notes
             </a>
         </div>
-        <div class="view-toggle">
-            <div class="toggle-option active" id="view-day" onclick="switchView('day')">Jour</div>
-            <div class="toggle-option" id="view-week" onclick="switchView('week')">Semaine</div>
+        <div class="view-switch">
+            <div class="switch-opt active" id="btn-day" onclick="setView('day')">Jour</div>
+            <div class="switch-opt" id="btn-week" onclick="setView('week')">Semaine</div>
         </div>
     </header>
 
-    <div class="date-controls">
+    <div class="date-nav">
         <button class="nav-btn" onclick="navDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-        <div class="current-date" id="date-display">--</div>
+        <div class="date-title" id="date-label">--</div>
         <button class="nav-btn" onclick="navDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
     </div>
 
-    <div id="main-scroll">
-        <div id="schedule-container"></div>
+    <div id="main-view">
+        <div id="day-container"></div>
+        <div id="week-container"></div>
     </div>
 
     <script>
-        const PROFESSORS = { "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL" };
+        const PROFS = { "AAUP": "Anaïs AUPEIX", "ABAL": "Anthony BALITRAND", "ABO": "Anthony BOUERY", "ACRT": "Accueil RT", "ADES": "Arnaud DESPAX", "ADHO": "Adeline D'Hondt", "AFAR": "Adrien FARGEAS", "AGIL": "Adrien Gilbert", "ALAB": "Amira Labidi", "ALAI": "Aurélien LAIDET", "ARO": "Alain Roux", "AV": "Adrien Van Den Bossche", "BALB": "Benoît ALBERT", "BDEP": "DEPLECHIN Bastien", "BPAT": "Bruno PATIES", "CBAR": "Clément BARREDA", "CBLA": "Christophe BLANCHET", "CFRI": "Clément FRISICARO", "CLAB": "Chantal LABAT", "CMAR": "Christine Marrou", "CPAL": "Curtis PALMA", "CSOU": "Christian SOUTOU", "CVEY": "Cassandre Vey", "DBRU": "Damien BRULIN", "DFLO": "Dominique FLORENTINY", "DLEN": "Didier LENQUETTE", "DTHE": "THERON Dorian", "EA": "Evelyne Armstrong", "EAGU": "Éric AGUILAR", "EFRE": "Elisa Fredieu", "EHUR": "Enzo HURTADO", "EPI": "Éric Piecourt", "FCHA": "Franck Chauvin", "FCR": "Fabienne CROSTA", "FMAG": "Flavien MAGINOT", "GCAU": "Guilhem CAUSSE", "GCHA": "Guesmi CHAOUKI", "GEST": "Geneviève ESTADIEU", "GFAB": "Gilles FABRE", "GMAN": "Gaël MANSALIER", "GRAS": "Grégory RASSEL", "HANN": "Hamed ANNTAR", "HSIM": "Hugo SIMANCAS", "IRAH": "Ibrahim Rahman", "JESI": "Jérôme SIEURAC", "JMAN": "Julien MANTEAU", "JMD": "Jean-marc Domercq", "JMIQ": "Jonathan MIQUEL", "JMTA": "Jean-Marc TARROUX", "JPBO": " BOURGEOIS", "JPBU": "Jean-Pierre Buzzo", "JPFE": "Jean-Pierre FEWOU", "JSCH": "Julien SCHRIVE", "JSEX": "John SEXTON", "JTA": "James Tatler", "JTAT": "James Tatler", "KMAS": "Khalid Massaoudi", "KPAU": "Karlyn PAULET", "LAFO": "Léo AFONSO", "LAND": "Laurent ANDRIEUX", "LD": "Laurent Demay", "LDAM": "Léa DAMAGGIO", "LDEC": "Léa DECOURCELLE", "LGAL": "Laurent GALIBERT", "LM": "Laetitia Marti", "LNAV": "Laurent NAVARRO", "LVAM": "Ludwig VAMBAIRGUE", "MBAU": "Marc Baudoin", "MGUI": "Maxime Guiraud", "MLAS": "Maxime Lastera", "MVAN": "Maxime VAN-SCHENDEL", "NBER": "Nabila BERMAD", "NG": "Nicolas Gonzalez", "NGUT": "Nicolas Gutierrez", "NSE": "Noël SERRES", "OM": "Olivier Martin", "ONEG": "Olivier NEGRO", "PCOU": "Patrick COUFFIGNAL", "PDUM": "Pierre DUMAY", "PLEG": "Patrick LEGLUHERE", "QDUF": "Quentin Dufour", "QGAL": "Quentin GALLAND", "RDAL": "Réjane Dalcé", "RDAS": "Romain Da Silva", "SDUF": "Stephan DUFRECHOU", "SGIR": "Sylvain GIROUX", "SJOS": "Sébastien JOSSET", "SYOU": "Sarah YOUNES", "TGAL": "Tommy GALET", "TJ": "Térence Jung", "TKUI": "Tristan KUIPERS", "TPRO": "Thibaut PROBST", "TSCA": "Tristan SCANDELLA", "TVAL": "Thierry VAL", "TVIL": "Thierry VILLEMUR", "VACRT": "vac RT", "VBAR": "Vincent Barbandière", "YBAU": "Yohann BAUZIL" };
 
-        let eventsData = [];
-        let currentDate = new Date();
-        let currentGroup = localStorage.getItem('user_group') || '1C';
-        let currentView = 'day';
+        let events = [];
+        let currDate = new Date();
+        let currView = 'day';
+        let currGroup = localStorage.getItem('user_group') || '1C';
 
         window.onload = () => {
-            document.getElementById('group-select').value = currentGroup;
-            loadSchedule(currentGroup);
+            document.getElementById('group-select').value = currGroup;
+            loadData(currGroup);
         };
 
-        function changeGroup(newGroup) {
-            currentGroup = newGroup;
-            localStorage.setItem('user_group', newGroup);
-            loadSchedule(newGroup);
+        function changeGroup(g) {
+            currGroup = g;
+            localStorage.setItem('user_group', g);
+            loadData(g);
         }
 
-        async function loadSchedule(group) {
-            document.getElementById('loading').classList.remove('hidden');
-            const icsUrl = `./edt_${group}.ics?t=` + new Date().getTime();
+        async function loadData(group) {
+            document.getElementById('loading').style.display = 'flex';
+            const url = `./edt_${group}.ics?t=` + Date.now();
             try {
-                const response = await fetch(icsUrl);
-                if (!response.ok) throw new Error("Fichier introuvable");
-                const text = await response.text();
-                processICS(text);
-            } catch (e) {
-                console.error(e);
-                document.getElementById('schedule-container').innerHTML = 
-                    `<div class="empty-state">Données indisponibles</div>`;
+                const res = await fetch(url);
+                if(!res.ok) throw new Error();
+                const text = await res.text();
+                parseData(text);
+            } catch(e) {
+                document.getElementById('day-container').innerHTML = "<div class='empty'>Erreur chargement (lance le robot GitHub)</div>";
+                document.getElementById('week-container').innerHTML = "<div class='empty'>Erreur chargement</div>";
             } finally {
-                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('loading').style.display = 'none';
             }
         }
 
-        function processICS(icsContent) {
-            const jcalData = ICAL.parse(icsContent);
-            const comp = new ICAL.Component(jcalData);
-            const vevents = comp.getAllSubcomponents("vevent");
+        function parseData(ics) {
+            const jcal = ICAL.parse(ics);
+            const comp = new ICAL.Component(jcal);
+            events = comp.getAllSubcomponents("vevent").map(e => {
+                const evt = new ICAL.Event(e);
+                let title = evt.summary;
+                let prof = "";
+                let type = "Autre";
 
-            eventsData = vevents.map(evt => {
-                const event = new ICAL.Event(evt);
-                let summary = event.summary || "Cours";
-                let title = summary; let prof = ""; let type = "Autre";
-
-                if (summary.includes("-")) {
-                    const parts = summary.split("-");
-                    prof = parts[parts.length - 1].trim(); 
+                if (title.includes("-")) {
+                    const parts = title.split("-");
+                    prof = parts[parts.length-1].trim();
                     title = parts.slice(0, -1).join("-").trim();
                 }
-                const up = summary.toUpperCase();
-                if (up.includes("TP")) type = "TP";
-                else if (up.includes("TD")) type = "TD";
-                else if (up.includes("CM") || up.includes("AMPHI")) type = "CM";
-                else if (up.includes("EXAM")) type = "Exam";
+                const up = title.toUpperCase();
+                if (up.includes("TP")) type = "tp";
+                else if (up.includes("TD")) type = "td";
+                else if (up.includes("CM") || up.includes("AMPHI")) type = "cm";
+                else if (up.includes("EXAM")) type = "exam";
 
-                return { title, prof, type, location: event.location || "?", start: event.startDate.toJSDate(), end: event.endDate.toJSDate() };
+                return { title, prof, type, loc: evt.location, start: evt.startDate.toJSDate(), end: evt.endDate.toJSDate() };
             });
-            eventsData.sort((a,b) => a.start - b.start);
+            events.sort((a,b) => a.start - b.start);
             render();
         }
 
-        function switchView(view) {
-            currentView = view;
-            document.getElementById('view-day').classList.toggle('active', view === 'day');
-            document.getElementById('view-week').classList.toggle('active', view === 'week');
+        function setView(v) {
+            currView = v;
+            document.getElementById('btn-day').className = v === 'day' ? 'switch-opt active' : 'switch-opt';
+            document.getElementById('btn-week').className = v === 'week' ? 'switch-opt active' : 'switch-opt';
+            document.getElementById('day-container').style.display = v === 'day' ? 'block' : 'none';
+            document.getElementById('week-container').style.display = v === 'week' ? 'flex' : 'none';
             render();
         }
 
-        function navDate(offset) {
-            const delta = (currentView === 'day') ? 1 : 7;
-            currentDate.setDate(currentDate.getDate() + (offset * delta));
+        function navDate(dir) {
+            const days = currView === 'day' ? 1 : 7;
+            currDate.setDate(currDate.getDate() + (dir * days));
             render();
         }
 
         function getMonday(d) {
             d = new Date(d);
-            var day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1);
-            return new Date(d.setDate(diff));
+            const day = d.getDay(), diff = d.getDate() - day + (day == 0 ? -6 : 1);
+            const mon = new Date(d.setDate(diff));
+            mon.setHours(0,0,0,0);
+            return mon;
         }
 
         function render() {
-            if (currentView === 'day') renderDay();
-            else renderWeek();
-        }
+            const dateLabel = document.getElementById('date-label');
+            const dayCont = document.getElementById('day-container');
+            const weekCont = document.getElementById('week-container');
 
-        function renderDay() {
-            const container = document.getElementById('schedule-container');
-            container.className = ""; // Reset class
-            document.getElementById('date-display').innerText = currentDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
-            container.innerHTML = "";
+            if (currView === 'day') {
+                dateLabel.innerText = currDate.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+                
+                const start = new Date(currDate); start.setHours(0,0,0,0);
+                const end = new Date(currDate); end.setHours(23,59,59,999);
+                const dayEvts = events.filter(e => e.start >= start && e.start <= end);
 
-            const startOfDay = new Date(currentDate); startOfDay.setHours(0,0,0,0);
-            const endOfDay = new Date(currentDate); endOfDay.setHours(23,59,59,999);
-            const dayEvents = eventsData.filter(e => e.start >= startOfDay && e.start <= endOfDay);
+                dayCont.innerHTML = dayEvts.length ? dayEvts.map(makeCard).join('') : "<div class='empty'>Rien ce jour 💤</div>";
 
-            if (dayEvents.length === 0) {
-                container.innerHTML = `<div class="empty-state" style="padding:20px;">Pas de cours 🎉</div>`;
-                return;
-            }
-            
-            // Container vertical simple
-            dayEvents.forEach(e => container.innerHTML += createCard(e));
-        }
+            } else {
+                const mon = getMonday(currDate);
+                dateLabel.innerText = `Semaine du ${mon.getDate()} ${mon.toLocaleDateString('fr-FR',{month:'short'})}`;
+                weekCont.innerHTML = "";
 
-        function renderWeek() {
-            const container = document.getElementById('schedule-container');
-            container.className = "week-container"; // Active le mode horizontal
-            
-            const monday = getMonday(currentDate);
-            const friday = new Date(monday); friday.setDate(monday.getDate() + 4);
-            document.getElementById('date-display').innerText = `Sem. du ${monday.getDate()} ${monday.toLocaleDateString('fr-FR', {month:'short'})}`;
-            
-            container.innerHTML = "";
+                const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
+                for(let i=0; i<5; i++) {
+                    const d = new Date(mon); d.setDate(mon.getDate()+i);
+                    const s = new Date(d); s.setHours(0,0,0,0);
+                    const e = new Date(d); e.setHours(23,59,59,999);
+                    const evts = events.filter(ev => ev.start >= s && ev.start <= e);
 
-            const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
-            
-            for(let i=0; i<5; i++) {
-                const dayDate = new Date(monday);
-                dayDate.setDate(monday.getDate() + i);
-                const start = new Date(dayDate); start.setHours(0,0,0,0);
-                const end = new Date(dayDate); end.setHours(23,59,59,999);
-                
-                const dayEvents = eventsData.filter(e => e.start >= start && e.start <= end);
-                
-                let dayHtml = `<div class="day-column">
-                    <div class="day-col-header">${days[i]} ${dayDate.getDate()}</div>`;
-                
-                if(dayEvents.length === 0) dayHtml += `<div style="text-align:center; padding:10px; color:#aaa;">Libre</div>`;
-                
-                dayEvents.forEach(e => dayHtml += createCard(e));
-                dayHtml += `</div>`;
-                
-                container.innerHTML += dayHtml;
+                    let html = `<div class="week-column"><div class="col-header">${days[i]} ${d.getDate()}</div><div class="col-content">`;
+                    html += evts.length ? evts.map(makeCard).join('') : "<div class='empty' style='padding:10px'>Libre</div>";
+                    html += `</div></div>`;
+                    weekCont.innerHTML += html;
+                }
             }
         }
 
-        function createCard(e) {
-            const hStart = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-            const hEnd = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
-            const profFullName = PROFESSORS[e.prof] || e.prof;
-
+        function makeCard(e) {
+            const h1 = e.start.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
+            const h2 = e.end.toLocaleTimeString('fr-FR', {hour:'2-digit', minute:'2-digit'});
             return `
-            <div class="course-card type-${e.type}" onclick="showProf('${e.prof}')">
-                <div class="time-row">
-                    <span>${hStart} - ${hEnd}</span>
-                    <span>${e.location}</span>
-                </div>
-                <div class="course-title">${e.title}</div>
-                <div class="course-badges">
-                    <span class="badge"><i class="fa-solid fa-user"></i> ${e.prof}</span>
+            <div class="card ${e.type}" onclick="showProf('${e.prof}')">
+                <div class="time-row"><span>${h1} - ${h2}</span><span>${e.loc}</span></div>
+                <div class="card-title">${e.title}</div>
+                <div class="card-footer">
+                    <span class="pill"><i class="fa-solid fa-user"></i> ${e.prof}</span>
                 </div>
             </div>`;
         }
 
         function showProf(code) {
-            const name = PROFESSORS[code] || code;
-            document.getElementById('modal-prof-name').innerText = name;
-            document.getElementById('modal-overlay').classList.add('active');
+            const name = PROFS[code] || code;
+            document.getElementById('modal-name').innerText = name;
+            document.getElementById('modal').classList.add('open');
         }
         function closeModal(e) {
-            if(e.target.id === 'modal-overlay' || e.currentTarget.classList.contains('close-icon')) {
-                document.getElementById('modal-overlay').classList.remove('active');
+            if(e.target.id === 'modal' || e.currentTarget.classList.contains('modal-close')) {
+                document.getElementById('modal').classList.remove('open');
             }
         }
     </script>
