@@ -28,14 +28,11 @@
             <button class="modal-close" onclick="closeModal(event)" aria-label="Fermer">
                 <i class="fa-solid fa-xmark"></i>
             </button>
-            
             <figure id="modal-icon" style="font-size: 3rem; color: var(--primary); margin: 0 0 15px 0;"></figure>
-            
             <header>
                 <small id="modal-subtitle" style="color:var(--text-sub); font-size:0.8rem; text-transform:uppercase;">Info</small>
                 <h2 id="modal-title" style="font-size:1.3rem; font-weight:800; color:var(--text-main); margin: 5px 0 10px 0;">...</h2>
             </header>
-            
             <section id="modal-content"></section>
         </article>
     </dialog>
@@ -47,7 +44,6 @@
                 <option value="1C">Groupe 1C</option><option value="1D">Groupe 1D</option>
                 <option value="1E">Groupe 1E</option><option value="1F">Groupe 1F</option>
             </select>
-
             <div class="header-actions">
                 <button class="btn-icon" onclick="toggleTheme()" id="theme-btn" aria-label="Changer thème">
                     <i class="fa-solid fa-moon"></i>
@@ -57,7 +53,6 @@
                 </a>
             </div>
         </nav>
-
         <nav class="view-switch">
             <button class="switch-opt active" id="btn-day" onclick="setView('day')">Jour</button>
             <button class="switch-opt" id="btn-week" onclick="setView('week')">Semaine</button>
@@ -66,7 +61,14 @@
 
     <nav class="date-nav">
         <button class="nav-btn" onclick="navDate(-1)"><i class="fa-solid fa-chevron-left"></i></button>
-        <time class="date-title" id="date-label">--</time>
+        
+        <div style="display:flex; flex-direction:column; align-items:center;">
+            <time class="date-title" id="date-label">--</time>
+            <div id="weekly-count" class="hours-badge">
+                <i class="fa-regular fa-clock"></i> <span>0h 00</span>
+            </div>
+        </div>
+
         <button class="nav-btn" onclick="navDate(1)"><i class="fa-solid fa-chevron-right"></i></button>
     </nav>
 
