@@ -40,7 +40,7 @@ async function loadData(group) {
         const text = await res.text();
         parseData(text);
     } catch(e) {
-        document.getElementById('day-container').innerHTML = "<p class='empty'>Erreur chargement. Vérifie que le robot GitHub a tourné !</p>";
+        document.getElementById('day-container').innerHTML = "<p class='empty'>Erreur chargement.</p>";
     } finally {
         document.getElementById('loading').style.display = 'none';
     }
@@ -73,6 +73,7 @@ function setView(v) {
     document.getElementById('week-container').style.display = v === 'week' ? 'flex' : 'none';
     render();
 }
+
 function navDate(dir) {
     const days = currView === 'day' ? 1 : 7;
     currDate.setDate(currDate.getDate() + (dir * days));
@@ -92,6 +93,19 @@ function render() {
     const weekCont = document.getElementById('week-container');
     const now = new Date();
 
+    const mon = getMonday(currDate);
+    // Calcul pour le Compteur Hebdo
+    const startWeek = new Date(mon); startWeek.setHours(0,0,0,0);
+    const endWeek = new Date(mon); endWeek.setDate(mon.getDate() + 6); endWeek.setHours(23,59,59,999);
+    
+    // Calcul des heures de la semaine
+    const weekEventsAll = events.filter(e => e.start >= startWeek && e.start <= endWeek);
+    let totalMs = 0;
+    weekEventsAll.forEach(e => totalMs += (e.end - e.start));
+    const h = Math.floor(totalMs / 3600000);
+    const m = Math.floor((totalMs % 3600000) / 60000);
+    document.querySelector('#weekly-count span').innerText = `${h}h ${m < 10 ? '0'+m : m}`;
+
     if (currView === 'day') {
         dateLabel.setAttribute('datetime', currDate.toISOString().split('T')[0]);
         dateLabel.innerText = currDate.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
@@ -100,7 +114,6 @@ function render() {
         const dayEvts = events.filter(e => e.start >= start && e.start <= end);
         dayCont.innerHTML = dayEvts.length ? dayEvts.map(e => makeCard(e, now)).join('') : "<p class='empty'>Rien ce jour 💤</p>";
     } else {
-        const mon = getMonday(currDate);
         dateLabel.innerText = `Semaine du ${mon.getDate()} ${mon.toLocaleDateString('fr-FR',{month:'short'})}`;
         weekCont.innerHTML = "";
         const days = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi"];
@@ -138,20 +151,15 @@ function makeCard(e, now) {
     </article>`;
 }
 
-// --- LOGIQUE MODALE ---
+// MODAL
 const modal = document.getElementById('modal');
 const modalCard = document.querySelector('.modal-card');
 
 function showProf(code) {
     const name = PROFS[code] || code;
-    
-    // 1. Reset taille normale
     modalCard.classList.remove('large');
-    
-    // 2. Réafficher les éléments masqués par le plan
     document.getElementById('modal-icon').style.display = 'block';
     document.getElementById('modal-subtitle').style.display = 'block';
-    
     document.getElementById('modal-icon').innerHTML = '<i class="fa-solid fa-user-tie"></i>';
     document.getElementById('modal-subtitle').innerText = "Enseignant";
     document.getElementById('modal-title').innerText = name;
@@ -160,15 +168,10 @@ function showProf(code) {
 }
 
 function showLoc(loc) {
-    // 1. Mode Large (CSS gère la taille et le centrage)
     modalCard.classList.add('large');
-
-    // 2. On cache l'entête classique pour gagner de la place
     document.getElementById('modal-icon').style.display = 'none';
     document.getElementById('modal-subtitle').style.display = 'none';
     document.getElementById('modal-title').innerText = "Salle " + loc;
-    
-    // 3. Injecter l'image
     document.getElementById('modal-content').innerHTML = `
         <figure style="margin:0; width:100%; height:100%; display:flex; flex-direction:column;">
             <img src="img/plan.jpg" alt="Plan de l'IUT" style="flex:1; width:100%; object-fit:contain;">
@@ -178,7 +181,6 @@ function showLoc(loc) {
                 </a>
             </figcaption>
         </figure>`;
-        
     modal.classList.add('open');
 }
 
